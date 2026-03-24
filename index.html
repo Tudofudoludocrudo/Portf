@@ -3,95 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roblox Sword Portfolio</title>
+    <title>Sword Portfolio</title>
     <style>
         :root {
-            --bg: #0f0f0f;
-            --card-bg: #1a1a1a;
-            --text: #ffffff;
-            --accent: #00d2ff;
-            --secondary: #888;
+            --bg: #050505;
+            --card-bg: #0f0f0f;
+            --accent: #0084ff;
+            --text-main: #ffffff;
+            --text-dim: #666;
         }
+
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg);
-            color: var(--text);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 60px 20px;
-            line-height: 1.6;
         }
-        .container {
-            max-width: 900px;
-            margin: auto;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        h1 { 
-            font-weight: 800;
-            letter-spacing: -1px;
-            color: var(--accent);
-            margin-bottom: 10px;
-        }
-        p.subtitle { color: var(--secondary); font-size: 1.1rem; }
-        
+
+        .container { max-width: 1100px; margin: auto; }
+
+        header { margin-bottom: 80px; text-align: left; }
+        h1 { font-size: 1rem; letter-spacing: 5px; text-transform: uppercase; color: var(--text-dim); }
+
+        /* Gallery Grid */
         .portfolio-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 60px;
         }
-        .sword-card {
-            background: var(--card-bg);
-            border: 1px solid #333;
-            border-radius: 16px;
-            padding: 24px;
-            transition: transform 0.2s ease;
+
+        @media (max-width: 600px) {
+            .portfolio-grid { grid-template-columns: 1fr; }
         }
-        .sword-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--accent);
-        }
-        .sword-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .sword-title::before {
-            content: "";
-            width: 4px;
-            height: 20px;
-            background: var(--accent);
-            border-radius: 2px;
-        }
-        .image-comparison {
+
+        .sword-entry { margin-bottom: 20px; }
+        .sword-name { font-size: 0.9rem; margin-bottom: 15px; color: var(--text-dim); border-bottom: 1px solid #222; padding-bottom: 10px; }
+
+        .image-pair {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 15px;
         }
-        @media (max-width: 650px) {
-            .image-comparison { grid-template-columns: 1fr; }
+
+        .img-wrap {
+            position: relative;
+            background: var(--card-bg);
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: zoom-in;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        img {
-            width: 100%;
-            aspect-ratio: 16/9;
-            object-fit: cover;
-            border-radius: 10px;
-            background: #000;
-            display: block;
-            margin-bottom: 10px;
-            border: 1px solid #222;
+
+        .img-wrap img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; /* Ensures full image is visible */
+            transition: transform 0.3s ease;
         }
+
+        .img-wrap:hover img { transform: scale(1.05); }
+
         .label {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--secondary);
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 0.6rem;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            text-align: center;
+            background: rgba(0,0,0,0.7);
+            padding: 4px 8px;
+            color: var(--accent);
+        }
+
+        /* Interactive Popup (Lightbox) */
+        #lightbox {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            cursor: grab;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #lightbox-img {
+            position: absolute;
+            max-height: 90vh;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        #close-btn {
+            position: absolute;
+            top: 20px; right: 30px;
+            font-size: 30px; color: white;
+            cursor: pointer; z-index: 1001;
         }
     </style>
 </head>
@@ -99,27 +110,80 @@
 
 <div class="container">
     <header>
-        <h1>Sword Modeling Portfolio</h1>
-        <p class="subtitle">High-quality assets for Roblox, modeled in Blender.</p>
+        <h1>Sword Works</h1>
     </header>
 
     <div class="portfolio-grid">
-        <div class="sword-card">
-            <div class="sword-title">Longsword</div>
-            <div class="image-comparison">
-                <div class="img-container">
-                    <img src="assets/blenderlongsword2.png" alt="Blender View">
-                    <div class="label">Blender Render</div>
+        
+        <div class="sword-entry">
+            <div class="sword-name">01 // LONGSWORD</div>
+            <div class="image-pair">
+                <div class="img-wrap" onclick="openLightbox('assets/blenderlongsword2.png')">
+                    <img src="assets/blenderlongsword2.png">
+                    <div class="label">Blender</div>
                 </div>
-                <div class="img-container">
-                    <img src="assets/rblxlongsword1.png" alt="Roblox Studio View">
-                    <div class="label">Roblox Studio</div>
+                <div class="img-wrap" onclick="openLightbox('assets/rblxlongsword1.png')">
+                    <img src="assets/rblxlongsword1.png">
+                    <div class="label">Studio</div>
                 </div>
             </div>
         </div>
-
         </div>
 </div>
+
+<div id="lightbox" onmousedown="startDrag(event)" onmousemove="drag(event)" onmouseup="endDrag()" onmouseleave="endDrag()">
+    <span id="close-btn" onclick="closeLightbox()">&times;</span>
+    <img id="lightbox-img" src="" draggable="false">
+</div>
+
+<script>
+    const lightbox = document.getElementById('lightbox');
+    const lbImg = document.getElementById('lightbox-img');
+    
+    let isDragging = false;
+    let startX, startY, currentX = 0, currentY = 0;
+
+    function openLightbox(src) {
+        lbImg.src = src;
+        lightbox.style.display = 'flex';
+        lightbox.style.alignItems = 'center';
+        lightbox.style.justifyContent = 'center';
+        // Reset position
+        currentX = 0; currentY = 0;
+        lbImg.style.transform = `translate(0px, 0px)`;
+    }
+
+    function closeLightbox() {
+        lightbox.style.display = 'none';
+    }
+
+    function startDrag(e) {
+        if (e.target === lbImg) {
+            isDragging = true;
+            lightbox.style.cursor = 'grabbing';
+            startX = e.clientX - currentX;
+            startY = e.clientY - currentY;
+        }
+    }
+
+    function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        currentX = e.clientX - startX;
+        currentY = e.clientY - startY;
+        lbImg.style.transform = `translate(${currentX}px, ${currentY}px)`;
+    }
+
+    function endDrag() {
+        isDragging = false;
+        lightbox.style.cursor = 'grab';
+    }
+
+    // Close on background click
+    lightbox.onclick = function(e) {
+        if (e.target === lightbox) closeLightbox();
+    }
+</script>
 
 </body>
 </html>
