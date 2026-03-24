@@ -3,187 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sword Portfolio</title>
+    <title>Portfolio | kh07_</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #050505;
-            --card-bg: #0f0f0f;
-            --accent: #0084ff;
+            --accent: #00d2ff; /* Sharp blue accent */
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
             --text-main: #ffffff;
-            --text-dim: #666;
+            --text-dim: #999;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
         body {
             background-color: var(--bg);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 60px 20px;
+            overflow-x: hidden;
         }
 
-        .container { max-width: 1100px; margin: auto; }
-
-        header { margin-bottom: 80px; text-align: left; }
-        h1 { font-size: 1rem; letter-spacing: 5px; text-transform: uppercase; color: var(--text-dim); }
-
-        /* Gallery Grid */
-        .portfolio-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-            gap: 60px;
-        }
-
-        @media (max-width: 600px) {
-            .portfolio-grid { grid-template-columns: 1fr; }
-        }
-
-        .sword-entry { margin-bottom: 20px; }
-        .sword-name { font-size: 0.9rem; margin-bottom: 15px; color: var(--text-dim); border-bottom: 1px solid #222; padding-bottom: 10px; }
-
-        .image-pair {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .img-wrap {
-            position: relative;
-            background: var(--card-bg);
-            border-radius: 4px;
-            overflow: hidden;
-            cursor: zoom-in;
-            aspect-ratio: 1/1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .img-wrap img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; /* Ensures full image is visible */
-            transition: transform 0.3s ease;
-        }
-
-        .img-wrap:hover img { transform: scale(1.05); }
-
-        .label {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            background: rgba(0,0,0,0.7);
-            padding: 4px 8px;
-            color: var(--accent);
-        }
-
-        /* Interactive Popup (Lightbox) */
-        #lightbox {
-            display: none;
+        /* --- COOL BACKGROUND EFFECT --- */
+        .bg-blobs {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            z-index: 1000;
-            cursor: grab;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
             overflow: hidden;
-            touch-action: none;
+            background: radial-gradient(circle at 50% 50%, #0a0a0a, #000);
+        }
+        .blob {
+            position: absolute;
+            width: 500px; height: 500px;
+            background: var(--accent);
+            filter: blur(150px);
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: move 20s infinite alternate;
+        }
+        @keyframes move {
+            from { transform: translate(-10%, -10%); }
+            to { transform: translate(20%, 20%); }
         }
 
-        #lightbox-img {
-            position: absolute;
-            max-height: 90vh;
-            user-select: none;
-            -webkit-user-drag: none;
+        /* --- NAVIGATION --- */
+        nav {
+            position: sticky; top: 0;
+            display: flex; justify-content: space-between;
+            padding: 30px 10%;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            border-bottom: 1px solid var(--border);
+        }
+        nav .logo { font-weight: 800; letter-spacing: 2px; text-transform: uppercase; font-size: 0.9rem; }
+        nav .links a { 
+            color: var(--text-dim); text-decoration: none; 
+            margin-left: 30px; font-size: 0.8rem; text-transform: uppercase;
+            transition: 0.3s;
+        }
+        nav .links a:hover { color: var(--accent); }
+
+        /* --- HERO SECTION --- */
+        header {
+            height: 40vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            text-align: center;
+        }
+        header h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 10px; }
+        header p { color: var(--text-dim); letter-spacing: 4px; text-transform: uppercase; font-size: 0.7rem; }
+
+        /* --- PORTFOLIO GRID --- */
+        .container { max-width: 1200px; margin: auto; padding: 0 5%; }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 40px;
+            padding-bottom: 100px;
+        }
+        @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 25px;
+            transition: 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .card:hover { border-color: var(--accent); transform: translateY(-10px); }
+
+        .card-header { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .card-header span { font-size: 0.7rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; }
+
+        .img-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .img-item {
+            position: relative; aspect-ratio: 1/1; 
+            background: #000; border-radius: 12px; 
+            overflow: hidden; cursor: zoom-in;
+        }
+        .img-item img { width: 100%; height: 100%; object-fit: contain; transition: 0.5s; }
+        .img-item:hover img { transform: scale(1.1); }
+        .img-label {
+            position: absolute; bottom: 10px; left: 10px;
+            font-size: 0.6rem; background: rgba(0,0,0,0.8);
+            padding: 4px 10px; border-radius: 4px; color: var(--accent);
         }
 
-        #close-btn {
-            position: absolute;
-            top: 20px; right: 30px;
-            font-size: 30px; color: white;
-            cursor: pointer; z-index: 1001;
+        /* --- CONTACT TAB --- */
+        #contact {
+            padding: 100px 0; border-top: 1px solid var(--border);
+            text-align: center;
         }
+        .contact-box {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            display: inline-block;
+            padding: 40px 60px;
+            border-radius: 30px;
+        }
+        .discord-tag { font-size: 1.5rem; font-weight: 700; color: var(--accent); margin-top: 10px; }
+
+        /* --- LIGHTBOX (ZOOM & MOVE) --- */
+        #lightbox {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.98);
+            z-index: 1000; cursor: grab; align-items: center; justify-content: center;
+        }
+        #lightbox img { max-height: 85vh; max-width: 85vw; user-select: none; transition: transform 0.1s ease-out; }
+        #close-btn { position: absolute; top: 30px; right: 40px; font-size: 2rem; cursor: pointer; opacity: 0.5; }
+        #close-btn:hover { opacity: 1; }
+
     </style>
 </head>
 <body>
 
-<div class="container">
+    <div class="bg-blobs"><div class="blob"></div></div>
+
+    <nav>
+        <div class="logo">KH.STUDIO</div>
+        <div class="links">
+            <a href="#">Works</a>
+            <a href="#contact">Contact</a>
+        </div>
+    </nav>
+
     <header>
-        <h1>Sword Works</h1>
+        <h1>Portfolio</h1>
+        <p>3D Asset Design & Roblox Modeling</p>
     </header>
 
-    <div class="portfolio-grid">
-        
-        <div class="sword-entry">
-            <div class="sword-name">01 // LONGSWORD</div>
-            <div class="image-pair">
-                <div class="img-wrap" onclick="openLightbox('assets/blenderlongsword2.png')">
-                    <img src="assets/blenderlongsword2.png">
-                    <div class="label">Blender</div>
+    <div class="container">
+        <div class="grid">
+            
+            <div class="card">
+                <div class="card-header">
+                    <span>01. Longsword</span>
+                    <span>Blender → Studio</span>
                 </div>
-                <div class="img-wrap" onclick="openLightbox('assets/rblxlongsword1.png')">
-                    <img src="assets/rblxlongsword1.png">
-                    <div class="label">Studio</div>
+                <div class="img-container">
+                    <div class="img-item" onclick="openLightbox('assets/blenderlongsword2.png')">
+                        <img src="assets/blenderlongsword2.png">
+                        <div class="img-label">Blender</div>
+                    </div>
+                    <div class="img-item" onclick="openLightbox('assets/rblxlongsword1.png')">
+                        <img src="assets/rblxlongsword1.png">
+                        <div class="img-label">Studio</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        </div>
-</div>
 
-<div id="lightbox" onmousedown="startDrag(event)" onmousemove="drag(event)" onmouseup="endDrag()" onmouseleave="endDrag()">
-    <span id="close-btn" onclick="closeLightbox()">&times;</span>
-    <img id="lightbox-img" src="" draggable="false">
-</div>
+            <div class="card">
+                <div class="card-header">
+                    <span>02. Rapier</span>
+                    <span>Fine Detail Set</span>
+                </div>
+                <div class="img-container">
+                    <div class="img-item" onclick="openLightbox('assets/blenderlongrapier.png')">
+                        <img src="assets/blenderlongrapier.png">
+                        <div class="img-label">Blender</div>
+                    </div>
+                    <div class="img-item" onclick="openLightbox('assets/rblxrapier.png')">
+                        <img src="assets/rblxrapier.png">
+                        <div class="img-label">Studio</div>
+                    </div>
+                </div>
+            </div>
 
-<script>
-    const lightbox = document.getElementById('lightbox');
-    const lbImg = document.getElementById('lightbox-img');
-    
-    let isDragging = false;
-    let startX, startY, currentX = 0, currentY = 0;
+            </div>
 
-    function openLightbox(src) {
-        lbImg.src = src;
-        lightbox.style.display = 'flex';
-        lightbox.style.alignItems = 'center';
-        lightbox.style.justifyContent = 'center';
-        // Reset position
-        currentX = 0; currentY = 0;
-        lbImg.style.transform = `translate(0px, 0px)`;
-    }
+        <section id="contact">
+            <div class="contact-box">
+                <p style="color:var(--text-dim); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 2px;">Available for Commissions</p>
+                <div class="discord-tag">Discord: kh07_</div>
+            </div>
+        </section>
+    </div>
 
-    function closeLightbox() {
-        lightbox.style.display = 'none';
-    }
+    <div id="lightbox" onmousedown="startDrag(event)" onmousemove="drag(event)" onmouseup="endDrag()" onmouseleave="endDrag()">
+        <span id="close-btn" onclick="closeLightbox()">&times;</span>
+        <img id="lb-img" src="" draggable="false">
+    </div>
 
-    function startDrag(e) {
-        if (e.target === lbImg) {
-            isDragging = true;
-            lightbox.style.cursor = 'grabbing';
-            startX = e.clientX - currentX;
-            startY = e.clientY - currentY;
+    <script>
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lb-img');
+        let isDragging = false;
+        let startX, startY, currentX = 0, currentY = 0;
+
+        function openLightbox(src) {
+            lbImg.src = src;
+            lightbox.style.display = 'flex';
+            currentX = 0; currentY = 0;
+            lbImg.style.transform = `translate(0px, 0px)`;
         }
-    }
 
-    function drag(e) {
-        if (!isDragging) return;
-        e.preventDefault();
-        currentX = e.clientX - startX;
-        currentY = e.clientY - startY;
-        lbImg.style.transform = `translate(${currentX}px, ${currentY}px)`;
-    }
+        function closeLightbox() { lightbox.style.display = 'none'; }
 
-    function endDrag() {
-        isDragging = false;
-        lightbox.style.cursor = 'grab';
-    }
+        function startDrag(e) {
+            if(e.target === lbImg) {
+                isDragging = true;
+                lightbox.style.cursor = 'grabbing';
+                startX = e.clientX - currentX;
+                startY = e.clientY - currentY;
+            }
+        }
 
-    // Close on background click
-    lightbox.onclick = function(e) {
-        if (e.target === lightbox) closeLightbox();
-    }
-</script>
+        function drag(e) {
+            if (!isDragging) return;
+            currentX = e.clientX - startX;
+            currentY = e.clientY - startY;
+            lbImg.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        }
 
+        function endDrag() { isDragging = false; lightbox.style.cursor = 'grab'; }
+
+        lightbox.onclick = (e) => { if(e.target === lightbox) closeLightbox(); }
+    </script>
 </body>
 </html>
