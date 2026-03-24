@@ -6,67 +6,92 @@
     <title>Roblox Sword Portfolio</title>
     <style>
         :root {
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #e0e0e0;
-            --accent: #00a2ff;
+            --bg: #0f0f0f;
+            --card-bg: #1a1a1a;
+            --text: #ffffff;
+            --accent: #00d2ff;
+            --secondary: #888;
         }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 40px 20px;
+            padding: 60px 20px;
+            line-height: 1.6;
         }
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: auto;
         }
         header {
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 60px;
         }
-        h1 { color: var(--accent); }
+        h1 { 
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--accent);
+            margin-bottom: 10px;
+        }
+        p.subtitle { color: var(--secondary); font-size: 1.1rem; }
         
         .portfolio-grid {
             display: flex;
             flex-direction: column;
-            gap: 40px;
+            gap: 50px;
         }
         .sword-card {
             background: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 24px;
+            transition: transform 0.2s ease;
+        }
+        .sword-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
         }
         .sword-title {
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--accent);
-            padding-left: 10px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sword-title::before {
+            content: "";
+            width: 4px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
         }
         .image-comparison {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 20px;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 650px) {
             .image-comparison { grid-template-columns: 1fr; }
-        }
-        .img-container {
-            text-align: center;
         }
         img {
             width: 100%;
-            border-radius: 8px;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            border-radius: 10px;
+            background: #000;
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #222;
         }
         .label {
-            font-size: 0.9rem;
-            color: #888;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--secondary);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            text-align: center;
         }
     </style>
 </head>
@@ -75,7 +100,7 @@
 <div class="container">
     <header>
         <h1>Sword Modeling Portfolio</h1>
-        <p>Showcasing the journey from Blender to Roblox Studio.</p>
+        <p class="subtitle">High-quality assets for Roblox, modeled in Blender.</p>
     </header>
 
     <div class="portfolio-grid">
@@ -83,11 +108,11 @@
             <div class="sword-title">Longsword</div>
             <div class="image-comparison">
                 <div class="img-container">
-                    <img src="blenderlongsword2.png" alt="Blender Render">
+                    <img src="assets/blenderlongsword2.png" alt="Blender View">
                     <div class="label">Blender Render</div>
                 </div>
                 <div class="img-container">
-                    <img src="rblxlongsword1.png" alt="Roblox Studio Render">
+                    <img src="assets/rblxlongsword1.png" alt="Roblox Studio View">
                     <div class="label">Roblox Studio</div>
                 </div>
             </div>
