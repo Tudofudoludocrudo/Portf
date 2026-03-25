@@ -1,186 +1,442 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KH.STUDIO | Elite Assets</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #030303;
-            --accent: #00f2ff;
-            --glass: rgba(255, 255, 255, 0.02);
-            --border: rgba(255, 255, 255, 0.08);
-            --text: #ffffff;
-        }
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Plus, Download, Upload, Trash2, CheckCircle2, Circle, Trophy, X, Save, Copy } from 'lucide-react';
 
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'Space Grotesk', sans-serif;
-            overflow-x: hidden;
-        }
+// --- MASSIVE PRE-LOADED DATABASE ---
+// Over 100 notable Celtics spanning all eras, including recent 2025/2026 acquisitions.
+const DEFAULT_PLAYERS = [
+  // Legends & Retired Numbers
+  { id: "p001", name: "Bill Russell", years: "1956-1969", info: "Hall of Fame, 11x Champ" },
+  { id: "p002", name: "Larry Bird", years: "1979-1992", info: "Hall of Fame, 3x Champ" },
+  { id: "p003", name: "Bob Cousy", years: "1950-1963", info: "Hall of Fame, 6x Champ" },
+  { id: "p004", name: "Kevin McHale", years: "1980-1993", info: "Hall of Fame, 3x Champ" },
+  { id: "p005", name: "Robert Parish", years: "1980-1994", info: "Hall of Fame, 3x Champ" },
+  { id: "p006", name: "Paul Pierce", years: "1998-2013", info: "Hall of Fame, 1x Champ" },
+  { id: "p007", name: "Kevin Garnett", years: "2007-2013", info: "Hall of Fame, 1x Champ" },
+  { id: "p008", name: "Ray Allen", years: "2007-2012", info: "Hall of Fame, 1x Champ" },
+  { id: "p009", name: "John Havlicek", years: "1962-1978", info: "Hall of Fame, 8x Champ" },
+  { id: "p010", name: "Sam Jones", years: "1957-1969", info: "Hall of Fame, 10x Champ" },
+  { id: "p011", name: "Tom Heinsohn", years: "1956-1965", info: "Hall of Fame, 8x Champ" },
+  { id: "p012", name: "Dave Cowens", years: "1970-1980", info: "Hall of Fame, 2x Champ" },
+  { id: "p013", name: "Jo Jo White", years: "1969-1979", info: "Hall of Fame, 2x Champ" },
+  { id: "p014", name: "Dennis Johnson", years: "1983-1990", info: "Hall of Fame, 2x Champ" },
+  { id: "p015", name: "Ed Macauley", years: "1950-1956", info: "Hall of Fame" },
+  { id: "p016", name: "Bill Sharman", years: "1951-1961", info: "Hall of Fame, 4x Champ" },
+  { id: "p017", name: "Frank Ramsey", years: "1954-1964", info: "Hall of Fame, 7x Champ" },
+  { id: "p018", name: "K.C. Jones", years: "1958-1967", info: "Hall of Fame, 8x Champ" },
+  { id: "p019", name: "Satch Sanders", years: "1960-1973", info: "Hall of Fame, 8x Champ" },
+  { id: "p020", name: "Don Nelson", years: "1965-1976", info: "Hall of Fame, 5x Champ" },
+  { id: "p021", name: "Cedric Maxwell", years: "1977-1985", info: "2x Champ, 1981 Finals MVP" },
+  { id: "p022", name: "Reggie Lewis", years: "1987-1993", info: "All-Star" },
+  
+  // Current & Recent Era (Including 2024 Champs & 2026 updates)
+  { id: "p023", name: "Jayson Tatum", years: "2017-Present", info: "All-Star, 1x Champ" },
+  { id: "p024", name: "Jaylen Brown", years: "2016-Present", info: "All-Star, 1x Champ, Finals MVP" },
+  { id: "p025", name: "Marcus Smart", years: "2014-2023", info: "DPOY" },
+  { id: "p026", name: "Al Horford", years: "2016-19, 2021-Present", info: "All-Star, 1x Champ" },
+  { id: "p027", name: "Derrick White", years: "2022-Present", info: "1x Champ" },
+  { id: "p028", name: "Jrue Holiday", years: "2023-Present", info: "1x Champ" },
+  { id: "p029", name: "Kristaps Porziņģis", years: "2023-Present", info: "1x Champ" },
+  { id: "p030", name: "Payton Pritchard", years: "2020-Present", info: "1x Champ" },
+  { id: "p031", name: "Sam Hauser", years: "2021-Present", info: "1x Champ" },
+  { id: "p032", name: "Luke Kornet", years: "2021-Present", info: "1x Champ" },
+  { id: "p101", name: "Nikola Vučević", years: "2026-Present", info: "Acquired 2026" },
+  { id: "p102", name: "Luka Garza", years: "2025-Present", info: "" },
+  { id: "p103", name: "Baylor Scheierman", years: "2024-Present", info: "" },
+  { id: "p104", name: "Neemias Queta", years: "2023-Present", info: "1x Champ" },
+  { id: "p105", name: "Xavier Tillman", years: "2024-Present", info: "1x Champ" },
+  { id: "p106", name: "Dalano Banton", years: "2023-24, 2026-Present", info: "" },
+  
+  // 2008 Era and 2010s
+  { id: "p033", name: "Rajon Rondo", years: "2006-2014", info: "4x All-Star, 1x Champ" },
+  { id: "p034", name: "Kendrick Perkins", years: "2003-2011", info: "1x Champ" },
+  { id: "p035", name: "Glen Davis", years: "2007-2011", info: "1x Champ" },
+  { id: "p036", name: "Tony Allen", years: "2004-2010", info: "1x Champ" },
+  { id: "p037", name: "James Posey", years: "2007-2008", info: "1x Champ" },
+  { id: "p038", name: "Eddie House", years: "2007-2010", info: "1x Champ" },
+  { id: "p039", name: "Leon Powe", years: "2006-2009", info: "1x Champ" },
+  { id: "p040", name: "Isaiah Thomas", years: "2015-2017", info: "2x All-Star" },
+  { id: "p041", name: "Avery Bradley", years: "2010-2017", info: "All-Defensive" },
+  { id: "p042", name: "Jae Crowder", years: "2014-2017", info: "" },
+  { id: "p043", name: "Kelly Olynyk", years: "2013-2017", info: "" },
+  { id: "p044", name: "Terry Rozier", years: "2015-2019", info: "" },
+  { id: "p045", name: "Gordon Hayward", years: "2017-2020", info: "All-Star" },
+  { id: "p046", name: "Kyrie Irving", years: "2017-2019", info: "All-Star" },
+  { id: "p047", name: "Kemba Walker", years: "2019-2021", info: "All-Star" },
+  { id: "p048", name: "Robert Williams III", years: "2018-2023", info: "All-Defensive" },
+  { id: "p049", name: "Grant Williams", years: "2019-2023", info: "" },
+  
+  // 90s & early 2000s
+  { id: "p050", name: "Antoine Walker", years: "1996-2003, 2005", info: "3x All-Star" },
+  { id: "p051", name: "Ricky Davis", years: "2003-2006", info: "" },
+  { id: "p052", name: "Walter McCarty", years: "1997-2005", info: "Fan Favorite" },
+  { id: "p053", name: "Mark Blount", years: "2001-2006", info: "" },
+  { id: "p054", name: "Raef LaFrentz", years: "2003-2006", info: "" },
+  { id: "p055", name: "Dana Barros", years: "1995-2000", info: "" },
+  { id: "p056", name: "Dee Brown", years: "1990-1998", info: "Slam Dunk Champ" },
+  { id: "p057", name: "Rick Fox", years: "1991-1997", info: "" },
+  { id: "p058", name: "Sherman Douglas", years: "1991-1996", info: "" },
+  { id: "p059", name: "Kenny Anderson", years: "1998-2002", info: "" },
+  
+  // Other Fan Favorites & Notables
+  { id: "p060", name: "Brian Scalabrine", years: "2005-2010", info: "1x Champ, White Mamba" },
+  { id: "p061", name: "Tacko Fall", years: "2019-2021", info: "Fan Favorite" },
+  { id: "p062", name: "Danny Ainge", years: "1981-1989", info: "2x Champ, Executive" },
+  { id: "p063", name: "Bill Walton", years: "1985-1987", info: "Hall of Fame, 1x Champ" },
+  { id: "p064", name: "Nate Robinson", years: "2010-2011", info: "" },
+  { id: "p065", name: "Jared Sullinger", years: "2012-2016", info: "" },
+  { id: "p066", name: "Evan Turner", years: "2014-2016", info: "" },
+  { id: "p067", name: "Brandon Bass", years: "2011-2015", info: "" },
+  { id: "p068", name: "Jeff Green", years: "2011-2015", info: "" },
+  { id: "p069", name: "Courtney Lee", years: "2012-2014", info: "" },
+  { id: "p070", name: "M.L. Carr", years: "1979-1985", info: "2x Champ" },
+  { id: "p071", name: "Scott Wedman", years: "1983-1987", info: "2x Champ" },
+  { id: "p072", name: "Jerry Sichting", years: "1985-1988", info: "1x Champ" },
+  { id: "p073", name: "Greg Kite", years: "1983-1988", info: "2x Champ" },
+  { id: "p074", name: "Chris Ford", years: "1978-1982", info: "1x Champ, 1st 3-pointer" },
+  { id: "p075", name: "Bailey Howell", years: "1966-1970", info: "Hall of Fame, 2x Champ" },
+  { id: "p076", name: "Tiny Archibald", years: "1978-1983", info: "Hall of Fame, 1x Champ" },
+  { id: "p077", name: "Artis Gilmore", years: "1988", info: "Hall of Fame" },
+  { id: "p078", name: "Dominique Wilkins", years: "1994-1995", info: "Hall of Fame" },
+  { id: "p079", name: "Dino Radja", years: "1993-1997", info: "Hall of Fame" },
+  { id: "p080", name: "Chauncey Billups", years: "1997-1998", info: "Hall of Fame" },
+  { id: "p081", name: "Gary Payton", years: "2004-2005", info: "Hall of Fame" },
+  { id: "p082", name: "Shaquille O'Neal", years: "2010-2011", info: "Hall of Fame" },
+  { id: "p083", name: "Pete Maravich", years: "1980", info: "Hall of Fame" },
+  { id: "p084", name: "Bob McAdoo", years: "1979", info: "Hall of Fame" },
+  { id: "p085", name: "Paul Westphal", years: "1972-1975", info: "Hall of Fame, 1x Champ" },
+  { id: "p086", name: "Charlie Scott", years: "1975-1977", info: "Hall of Fame, 1x Champ" },
+  { id: "p087", name: "Clyde Lovellette", years: "1962-1964", info: "Hall of Fame, 2x Champ" },
+  { id: "p088", name: "Arnie Risen", years: "1955-1958", info: "Hall of Fame, 1x Champ" },
+  { id: "p089", name: "Andy Phillip", years: "1956-1958", info: "Hall of Fame, 1x Champ" },
+  { id: "p090", name: "Carl Braun", years: "1961-1962", info: "Hall of Fame, 1x Champ" },
+  { id: "p091", name: "Bob Houbregs", years: "1954-1955", info: "Hall of Fame" }
+];
 
-        /* --- CUSTOM CURSOR --- */
-        #cursor {
-            position: fixed; width: 20px; height: 20px;
-            background: var(--accent); border-radius: 50%;
-            pointer-events: none; z-index: 9999;
-            mix-blend-mode: difference; transition: transform 0.1s ease;
-        }
+const CELTICS_GREEN = "#007A33";
+const CELTICS_GOLD = "#BA9653";
 
-        /* --- DYNAMIC BACKGROUND --- */
-        .vignette {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.8) 100%);
-            pointer-events: none; z-index: 1;
-        }
+export default function App() {
+  // --- STATE MANAGEMENT ---
+  const [collectedIds, setCollectedIds] = useState([]);
+  const [customPlayers, setCustomPlayers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all"); // 'all', 'collected', 'needed'
+  const [isReady, setIsReady] = useState(false);
+  
+  // Modals & Toasts
+  const [toast, setToast] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showDataModal, setShowDataModal] = useState(false);
 
-        /* --- LAYOUT --- */
-        .hero {
-            height: 60vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center;
-        }
-        .hero h1 { 
-            font-size: clamp(3rem, 10vw, 6rem); font-weight: 700; 
-            letter-spacing: -4px; line-height: 0.9;
-        }
-        .hero p { color: var(--accent); letter-spacing: 5px; text-transform: uppercase; font-size: 0.8rem; margin-top: 20px; }
+  // --- LOCAL STORAGE PERSISTENCE ---
+  useEffect(() => {
+    try {
+      const savedCollected = localStorage.getItem('celtics-collected');
+      const savedCustom = localStorage.getItem('celtics-custom');
+      
+      if (savedCollected) setCollectedIds(JSON.parse(savedCollected));
+      if (savedCustom) setCustomPlayers(JSON.parse(savedCustom));
+    } catch (err) {
+      console.error("Failed to load data from local storage", err);
+    }
+    setIsReady(true);
+  }, []);
 
-        .container { max-width: 1400px; margin: auto; padding: 0 5%; position: relative; z-index: 2; }
+  useEffect(() => {
+    if (isReady) {
+      localStorage.setItem('celtics-collected', JSON.stringify(collectedIds));
+      localStorage.setItem('celtics-custom', JSON.stringify(customPlayers));
+    }
+  }, [collectedIds, customPlayers, isReady]);
 
-        /* --- PROJECT CARDS --- */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(600px, 1fr)); gap: 80px; padding-bottom: 150px; }
-        @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+  // --- HELPERS ---
+  const showToastMsg = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
-        .card { position: relative; }
-        .img-stack {
-            position: relative; border-radius: 2px; overflow: hidden;
-            background: #080808; border: 1px solid var(--border);
-            display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
-        }
-        .img-stack div { position: relative; overflow: hidden; aspect-ratio: 4/5; }
-        .img-stack img { 
-            width: 100%; height: 100%; object-fit: cover; 
-            filter: grayscale(100%) brightness(0.7); transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1); 
-        }
-        .card:hover img { filter: grayscale(0%) brightness(1); transform: scale(1.05); }
+  const togglePlayer = (id) => {
+    setCollectedIds(prev => 
+      prev.includes(id) ? prev.filter(pId => pId !== id) : [...prev, id]
+    );
+  };
 
-        /* --- TECH SPECS --- */
-        .specs {
-            display: flex; gap: 10px; margin-top: 20px;
-        }
-        .badge {
-            font-size: 0.6rem; padding: 4px 10px; border: 1px solid var(--border);
-            border-radius: 100px; color: #666; text-transform: uppercase; letter-spacing: 1px;
-        }
-        .card:hover .badge { color: var(--accent); border-color: var(--accent); }
+  const removeCustomPlayer = (id) => {
+    setCustomPlayers(prev => prev.filter(p => p.id !== id));
+    setCollectedIds(prev => prev.filter(pId => pId !== id)); // Remove from collected if they were
+    showToastMsg("Custom player removed.");
+  };
 
-        .card-title { font-size: 1.5rem; margin-top: 10px; font-weight: 500; display: flex; align-items: center; gap: 15px; }
-        .card-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+  const handleAddCustomPlayer = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newPlayer = {
+      id: `custom-${Date.now()}`,
+      name: formData.get('name'),
+      years: formData.get('years'),
+      info: formData.get('info'),
+      isCustom: true
+    };
+    
+    setCustomPlayers(prev => [...prev, newPlayer]);
+    setShowAddModal(false);
+    showToastMsg(`${newPlayer.name} added to database!`);
+  };
 
-        /* --- CONTACT --- */
-        .contact-section { 
-            padding: 150px 0; text-align: center; border-top: 1px solid var(--border); 
-        }
-        .discord-btn {
-            background: white; color: black; padding: 20px 40px; 
-            border-radius: 100px; font-weight: 700; text-decoration: none;
-            display: inline-block; transition: 0.3s;
-        }
-        .discord-btn:hover { background: var(--accent); transform: scale(1.05); }
+  // --- DATA EXPORT / IMPORT ---
+  const handleExport = () => {
+    const data = { collectedIds, customPlayers };
+    const str = btoa(JSON.stringify(data));
+    
+    // Cross-browser/iframe safe clipboard copy
+    const textArea = document.createElement("textarea");
+    textArea.value = str;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showToastMsg("Save data copied to clipboard!");
+    } catch (err) {
+      showToastMsg("Failed to copy. Try manual selection.", "error");
+    }
+    document.body.removeChild(textArea);
+  };
 
-        /* --- LIGHTBOX --- */
-        #lightbox {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); z-index: 9999; align-items: center; justify-content: center;
-        }
-        #lightbox img { max-height: 90vh; border: 1px solid var(--border); }
-    </style>
-</head>
-<body>
+  const handleImport = (e) => {
+    e.preventDefault();
+    const str = new FormData(e.target).get('importString');
+    try {
+      const decoded = JSON.parse(atob(str));
+      if (decoded.collectedIds) setCollectedIds(decoded.collectedIds);
+      if (decoded.customPlayers) setCustomPlayers(decoded.customPlayers);
+      showToastMsg("Data imported successfully!");
+      setShowDataModal(false);
+    } catch (err) {
+      showToastMsg("Invalid save string.", "error");
+    }
+  };
 
-    <div id="cursor"></div>
-    <div class="vignette"></div>
+  // --- COMPUTED DATA ---
+  const allPlayers = useMemo(() => {
+    return [...DEFAULT_PLAYERS, ...customPlayers].sort((a, b) => a.name.localeCompare(b.name));
+  }, [customPlayers]);
 
-    <div class="container">
-        <section class="hero">
-            <p>Roblox Weapon Specialist</p>
-            <h1>CREATING THE<br>UNREAL.</h1>
-        </section>
+  const filteredPlayers = useMemo(() => {
+    return allPlayers.filter(p => {
+      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+      if (!matchesSearch) return false;
+      
+      if (filter === 'collected') return collectedIds.includes(p.id);
+      if (filter === 'needed') return !collectedIds.includes(p.id);
+      return true;
+    });
+  }, [allPlayers, searchTerm, filter, collectedIds]);
 
-        <div class="grid">
-            <div class="card">
-                <div class="img-stack">
-                    <div onclick="openLightbox('assets/blenderlongsword2.png')">
-                        <img src="assets/blenderlongsword2.png">
-                    </div>
-                    <div onclick="openLightbox('assets/rblxlongsword1.png')">
-                        <img src="assets/rblxlongsword1.png">
-                    </div>
-                </div>
-                <div class="card-title">LONGSWORD V.2</div>
-                <div class="specs">
-                    <div class="badge">1.8k Tris</div>
-                    <div class="badge">PBR Textures</div>
-                    <div class="badge">Optimized Collision</div>
-                </div>
+  const progressPct = allPlayers.length > 0 
+    ? Math.round((collectedIds.length / allPlayers.length) * 100) 
+    : 0;
+
+  if (!isReady) return null; // Wait for initial local storage load
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-20">
+      
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-white font-medium transition-all ${toast.type === 'error' ? 'bg-red-500' : 'bg-[#BA9653]'}`}>
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Header Area */}
+      <header className="bg-[#007A33] text-white py-8 px-4 shadow-md sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+            <div className="flex items-center gap-3">
+              <div className="bg-white p-2 rounded-full">
+                <Trophy className="w-8 h-8 text-[#007A33]" />
+              </div>
+              <h1 className="text-3xl font-black uppercase tracking-wider">Celtics Tracker</h1>
             </div>
-
-            <div class="card">
-                <div class="img-stack">
-                    <div onclick="openLightbox('assets/blenderlongrapier.png')">
-                        <img src="assets/blenderlongrapier.png">
-                    </div>
-                    <div onclick="openLightbox('assets/rblxrapier.png')">
-                        <img src="assets/rblxrapier.png">
-                    </div>
-                </div>
-                <div class="card-title">ROYAL RAPIER</div>
-                <div class="specs">
-                    <div class="badge">2.4k Tris</div>
-                    <div class="badge">Custom Hilt mesh</div>
-                    <div class="badge">Studio-Ready</div>
-                </div>
+            
+            <div className="mt-4 md:mt-0 flex gap-2">
+              <button onClick={() => setShowAddModal(true)} className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center">
+                <Plus className="w-4 h-4 mr-1" /> Add Player
+              </button>
+              <button onClick={() => setShowDataModal(true)} className="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center">
+                <Save className="w-4 h-4 mr-1" /> Data Sync
+              </button>
             </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+            <div className="flex justify-between text-sm font-semibold mb-2">
+              <span>Collection Progress</span>
+              <span>{collectedIds.length} / {allPlayers.length} ({progressPct}%)</span>
+            </div>
+            <div className="w-full bg-black/20 rounded-full h-3">
+              <div 
+                className="bg-[#BA9653] h-3 rounded-full transition-all duration-500 ease-out" 
+                style={{ width: `${progressPct}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Controls: Search & Filters */}
+        <div className="flex flex-col md:flex-row justify-between gap-4 mb-8">
+          <div className="relative flex-grow max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search players..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-[#007A33] focus:border-[#007A33] sm:text-sm transition-shadow"
+            />
+          </div>
+
+          <div className="flex bg-gray-200 p-1 rounded-xl w-full md:w-auto self-start">
+            {['all', 'collected', 'needed'].map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`flex-1 md:w-32 py-2 text-sm font-semibold rounded-lg capitalize transition-all ${filter === f ? 'bg-white text-[#007A33] shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <section class="contact-section">
-            <h2 style="font-size: 3rem; margin-bottom: 30px;">HAVE A PROJECT?</h2>
-            <a href="#" class="discord-btn" onclick="copyDiscord()">DISCORD: kh07_</a>
-            <p id="copy-msg" style="margin-top:15px; font-size: 0.7rem; color: var(--accent); opacity: 0;">COPIED TO CLIPBOARD</p>
-        </section>
+        {/* Player Grid */}
+        {filteredPlayers.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100">
+            <p className="text-gray-500 text-lg">No players found matching your criteria.</p>
+            {searchTerm && <p className="text-gray-400 mt-2">Try adding them manually using the "Add Player" button!</p>}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredPlayers.map(player => {
+              const isCollected = collectedIds.includes(player.id);
+              return (
+                <div 
+                  key={player.id}
+                  onClick={() => togglePlayer(player.id)}
+                  className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex flex-col justify-between h-full group
+                    ${isCollected 
+                      ? 'border-[#007A33] bg-green-50 shadow-sm' 
+                      : 'border-gray-200 bg-white hover:border-[#BA9653] hover:shadow-md'}`}
+                >
+                  <div>
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className={`font-bold text-lg leading-tight ${isCollected ? 'text-[#007A33]' : 'text-gray-900'}`}>
+                        {player.name}
+                      </h3>
+                      <button className={`p-1 rounded-full transition-colors ${isCollected ? 'text-[#007A33]' : 'text-gray-300 group-hover:text-gray-400'}`}>
+                        {isCollected ? <CheckCircle2 className="w-7 h-7" /> : <Circle className="w-7 h-7" />}
+                      </button>
+                    </div>
+                    <p className="text-sm text-gray-500 font-medium mb-3">{player.years || "Unknown Era"}</p>
+                    
+                    {player.info && (
+                      <span className={`text-xs px-2.5 py-1 rounded-md inline-block font-semibold ${
+                        player.info.includes("Hall of Fame") || player.info.includes("Champ") 
+                          ? 'bg-[#BA9653]/10 text-[#BA9653]' 
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {player.info}
+                      </span>
+                    )}
+                  </div>
+
+                  {player.isCustom && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); removeCustomPlayer(player.id); }}
+                      className="mt-5 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 py-1.5 px-2 rounded flex items-center transition-colors w-fit"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1.5" /> Remove
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+
+      {/* ADD PLAYER MODAL */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+            <div className="bg-[#007A33] px-6 py-4 flex justify-between items-center text-white">
+              <h2 className="text-xl font-bold">Add Custom Player</h2>
+              <button onClick={() => setShowAddModal(false)} className="hover:bg-white/20 p-1 rounded-full"><X className="w-5 h-5"/></button>
+            </div>
+            <form onSubmit={handleAddCustomPlayer} className="p-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Player Name *</label>
+                  <input required name="name" type="text" className="w-full border-gray-300 rounded-lg p-2.5 bg-gray-50 border focus:ring-2 focus:ring-[#007A33] focus:border-transparent outline-none" placeholder="e.g. Brian Scalabrine" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Years Played</label>
+                  <input name="years" type="text" className="w-full border-gray-300 rounded-lg p-2.5 bg-gray-50 border focus:ring-2 focus:ring-[#007A33] focus:border-transparent outline-none" placeholder="e.g. 2005-2010" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Additional Info/Tags</label>
+                  <input name="info" type="text" className="w-full border-gray-300 rounded-lg p-2.5 bg-gray-50 border focus:ring-2 focus:ring-[#007A33] focus:border-transparent outline-none" placeholder="e.g. White Mamba, 1x Champ" />
+                </div>
+              </div>
+              <div className="mt-8 flex justify-end gap-3">
+                <button type="button" onClick={() => setShowAddModal(false)} className="px-5 py-2.5 text-gray-600 font-semibold hover:bg-gray-100 rounded-lg">Cancel</button>
+                <button type="submit" className="px-5 py-2.5 bg-[#007A33] text-white font-semibold rounded-lg hover:bg-green-800 shadow-md">Add Player</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DATA SYNC MODAL */}
+      {showDataModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden">
+            <div className="bg-[#BA9653] px-6 py-4 flex justify-between items-center text-white">
+              <h2 className="text-xl font-bold">Sync & Backup Data</h2>
+              <button onClick={() => setShowDataModal(false)} className="hover:bg-white/20 p-1 rounded-full"><X className="w-5 h-5"/></button>
+            </div>
+            
+            <div className="p-6 space-y-8">
+              {/* EXPORT SECTION */}
+              <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <h3 className="font-bold text-gray-900 mb-2 flex items-center"><Download className="w-5 h-5 mr-2 text-[#BA9653]"/> Backup Your Collection</h3>
+                <p className="text-sm text-gray-600 mb-4">Because this app runs in your browser, clearing your cookies might reset your progress. Generate a save code to back it up!</p>
+                <button onClick={handleExport} className="w-full bg-white border-2 border-[#BA9653] text-[#BA9653] hover:bg-[#BA9653] hover:text-white font-bold py-3 rounded-lg transition-colors flex justify-center items-center">
+                  <Copy className="w-4 h-4 mr-2" /> Copy Save Code to Clipboard
+                </button>
+              </div>
+
+              {/* IMPORT SECTION */}
+              <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                <h3 className="font-bold text-gray-900 mb-2 flex items-center"><Upload className="w-5 h-5 mr-2 text-[#BA9653]"/> Restore Collection</h3>
+                <p className="text-sm text-gray-600 mb-4">Paste a previously copied save code here to restore your collection data.</p>
+                <form onSubmit={handleImport} className="flex gap-2">
+                  <input required name="importString" type="text" className="flex-grow border border-gray-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-[#BA9653] outline-none text-sm" placeholder="Paste code here..." />
+                  <button type="submit" className="bg-[#BA9653] hover:bg-yellow-600 text-white font-bold px-6 rounded-lg transition-colors shadow-sm">
+                    Restore
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
-
-    <div id="lightbox" onclick="closeLightbox()">
-        <img id="lb-img" src="">
-    </div>
-
-    <script>
-        // Custom Cursor Logic
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', e => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-
-        // Lightbox
-        function openLightbox(src) {
-            document.getElementById('lb-img').src = src;
-            document.getElementById('lightbox').style.display = 'flex';
-        }
-        function closeLightbox() {
-            document.getElementById('lightbox').style.display = 'none';
-        }
-
-        // Copy Discord
-        function copyDiscord() {
-            navigator.clipboard.writeText("kh07_");
-            const msg = document.getElementById('copy-msg');
-            msg.style.opacity = "1";
-            setTimeout(() => { msg.style.opacity = "0"; }, 2000);
-        }
-    </script>
-</body>
-</html>
+  );
+}
