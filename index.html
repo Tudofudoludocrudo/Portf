@@ -1,544 +1,521 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Search, 
-  Plus, 
-  Download, 
-  Upload, 
-  Trash2, 
-  CheckCircle2, 
-  Circle, 
-  Trophy, 
-  X, 
-  Save, 
-  Copy,
-  Zap,
-  Star,
-  Users,
-  ChevronRight
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thunder Archive | OKC Collection Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React and Babel for in-browser execution -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-[#F1F5F9] text-slate-900 selection:bg-[#007AC1]/20">
+    <div id="root"></div>
 
-// --- THE ULTIMATE OKC THUNDER REGISTRY (2008-PRESENT) ---
-const DEFAULT_PLAYERS = [
-  // --- 2024-2025 ROSTER & RECENT ---
-  { id: "okc101", name: "Shai Gilgeous-Alexander", years: "2019-Present", info: "All-NBA First Team" },
-  { id: "okc102", name: "Chet Holmgren", years: "2022-Present", info: "Rising Star" },
-  { id: "okc103", name: "Jalen Williams", years: "2022-Present", info: "JDub" },
-  { id: "okc104", name: "Luguentz Dort", years: "2019-Present", info: "The Dortress" },
-  { id: "okc105", name: "Isaiah Joe", years: "2022-Present", info: "Sharpshooter" },
-  { id: "okc106", name: "Cason Wallace", years: "2023-Present", info: "All-Rookie" },
-  { id: "okc107", name: "Aaron Wiggins", years: "2021-Present", info: "Efficient Wing" },
-  { id: "okc108", name: "Jaylin Williams", years: "2022-Present", info: "JWill" },
-  { id: "okc109", name: "Kenrich Williams", years: "2020-Present", info: "Kenny Hustle" },
-  { id: "okc110", name: "Alex Caruso", years: "2024-Present", info: "All-Defensive" },
-  { id: "okc111", name: "Isaiah Hartenstein", years: "2024-Present", info: "Big Acquisition" },
-  { id: "okc112", name: "Ousmane Dieng", years: "2022-Present", info: "" },
-  { id: "okc113", name: "Dillon Jones", years: "2024-Present", info: "2024 Rookie" },
-  { id: "okc114", name: "Ajay Mitchell", years: "2024-Present", info: "2024 Rookie" },
-  { id: "okc115", name: "Nikola Topić", years: "2024-Present", info: "Lottery Pick" },
-  { id: "okc116", name: "Malevy Leons", years: "2024-Present", info: "" },
-  { id: "okc117", name: "Adam Flagler", years: "2023-Present", info: "" },
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
 
-  // --- THE ICONS & ALL-STARS ---
-  { id: "okc001", name: "Russell Westbrook", years: "2008-2019", info: "MVP, Mr. Triple Double" },
-  { id: "okc002", name: "Kevin Durant", years: "2008-2016", info: "MVP, Scoring Champ" },
-  { id: "okc003", name: "James Harden", years: "2009-2012", info: "6th Man OTY" },
-  { id: "okc004", name: "Nick Collison", years: "2008-2018", info: "#4 Retired, Mr. Thunder" },
-  { id: "okc005", name: "Steven Adams", years: "2013-2020", info: "The Big Kiwi" },
-  { id: "okc006", name: "Serge Ibaka", years: "2009-2016", info: "Iblocka" },
-  { id: "okc007", name: "Paul George", years: "2017-2019", info: "MVP Finalist" },
-  { id: "okc008", name: "Chris Paul", years: "2019-2020", info: "All-Star Mentor" },
-  { id: "okc009", name: "Carmelo Anthony", years: "2017-2018", info: "Hoodie Melo" },
+        // --- THE ULTIMATE OKC THUNDER REGISTRY (2008-PRESENT) ---
+        const DEFAULT_PLAYERS = [
+            { id: "okc101", name: "Shai Gilgeous-Alexander", years: "2019-Present", info: "All-NBA First Team" },
+            { id: "okc102", name: "Chet Holmgren", years: "2022-Present", info: "Rising Star" },
+            { id: "okc103", name: "Jalen Williams", years: "2022-Present", info: "JDub" },
+            { id: "okc104", name: "Luguentz Dort", years: "2019-Present", info: "The Dortress" },
+            { id: "okc105", name: "Isaiah Joe", years: "2022-Present", info: "Sharpshooter" },
+            { id: "okc106", name: "Cason Wallace", years: "2023-Present", info: "All-Rookie" },
+            { id: "okc107", name: "Aaron Wiggins", years: "2021-Present", info: "Efficient Wing" },
+            { id: "okc108", name: "Jaylin Williams", years: "2022-Present", info: "JWill" },
+            { id: "okc109", name: "Kenrich Williams", years: "2020-Present", info: "Kenny Hustle" },
+            { id: "okc110", name: "Alex Caruso", years: "2024-Present", info: "All-Defensive" },
+            { id: "okc111", name: "Isaiah Hartenstein", years: "2024-Present", info: "Big Acquisition" },
+            { id: "okc112", name: "Ousmane Dieng", years: "2022-Present", info: "" },
+            { id: "okc113", name: "Dillon Jones", years: "2024-Present", info: "2024 Rookie" },
+            { id: "okc114", name: "Ajay Mitchell", years: "2024-Present", info: "2024 Rookie" },
+            { id: "okc115", name: "Nikola Topić", years: "2024-Present", info: "Lottery Pick" },
+            { id: "okc116", name: "Malevy Leons", years: "2024-Present", info: "" },
+            { id: "okc117", name: "Adam Flagler", years: "2023-Present", info: "" },
+            { id: "okc001", name: "Russell Westbrook", years: "2008-2019", info: "MVP, Mr. Triple Double" },
+            { id: "okc002", name: "Kevin Durant", years: "2008-2016", info: "MVP, Scoring Champ" },
+            { id: "okc003", name: "James Harden", years: "2009-2012", info: "6th Man OTY" },
+            { id: "okc004", name: "Nick Collison", years: "2008-2018", info: "#4 Retired, Mr. Thunder" },
+            { id: "okc005", name: "Steven Adams", years: "2013-2020", info: "The Big Kiwi" },
+            { id: "okc006", name: "Serge Ibaka", years: "2009-2016", info: "Iblocka" },
+            { id: "okc007", name: "Paul George", years: "2017-2019", info: "MVP Finalist" },
+            { id: "okc008", name: "Chris Paul", years: "2019-2020", info: "All-Star Mentor" },
+            { id: "okc009", name: "Carmelo Anthony", years: "2017-2018", info: "Hoodie Melo" },
+            { id: "okc010", name: "Thabo Sefolosha", years: "2009-2014", info: "Defensive Anchor" },
+            { id: "okc011", name: "Kendrick Perkins", years: "2011-2015", info: "The Enforcer" },
+            { id: "okc012", name: "Reggie Jackson", years: "2011-2015", info: "Spark Plug" },
+            { id: "okc013", name: "Andre Roberson", years: "2013-2020", info: "All-Defensive" },
+            { id: "okc014", name: "Dennis Schröder", years: "2018-2020", info: "6th Man Finalist" },
+            { id: "okc015", name: "Jerami Grant", years: "2016-2019", info: "Two-Way Wing" },
+            { id: "okc016", name: "Enes Kanter", years: "2015-2017", info: "Stache Brother" },
+            { id: "okc017", name: "Jeff Green", years: "2008-2011", info: "Original Core" },
+            { id: "okc018", name: "Dion Waiters", years: "2015-2016", info: "Waiters Island" },
+            { id: "okc019", name: "Nenad Krstić", years: "2008-2011", info: "Early Era Center" },
+            { id: "okc020", name: "Derek Fisher", years: "2012-2014", info: "Veteran Leader" },
+            { id: "okc021", name: "Danilo Gallinari", years: "2019-2020", info: "Sharpshooter" },
+            { id: "okc022", name: "Al Horford", years: "2020-2021", info: "" },
+            { id: "okc023", name: "Josh Giddey", years: "2021-2024", info: "Triple-Double Guard" },
+            { id: "okc024", name: "Mike Muscala", years: "2019-2024", info: "The Moose" },
+            { id: "okc025", name: "Aleksej Pokuševski", years: "2020-2024", info: "Poku" },
+            { id: "okc026", name: "Abdel Nader", years: "2018-2020", info: "" },
+            { id: "okc027", name: "Admiral Schofield", years: "2020-2021", info: "" },
+            { id: "okc028", name: "Alex Abrines", years: "2016-2019", info: "The Wolverine" },
+            { id: "okc029", name: "Anthony Morrow", years: "2014-2017", info: "Elite Shooter" },
+            { id: "okc030", name: "Bismack Biyombo", years: "2024", info: "" },
+            { id: "okc031", name: "Byron Mullens", years: "2009-2011", info: "" },
+            { id: "okc032", name: "Cameron Payne", years: "2015-2017", info: "Dance Partner" },
+            { id: "okc033", name: "Caron Butler", years: "2014", info: "" },
+            { id: "okc034", name: "Charlie Brown Jr.", years: "2021", info: "" },
+            { id: "okc035", name: "Chucky Atkins", years: "2008-2009", info: "" },
+            { id: "okc036", name: "Cole Aldrich", years: "2010-2012", info: "" },
+            { id: "okc037", name: "Corey Brewer", years: "2018", info: "" },
+            { id: "okc038", name: "D.J. Augustin", years: "2015-2016", info: "" },
+            { id: "okc039", name: "Daequan Cook", years: "2010-2012", info: "" },
+            { id: "okc040", name: "Dakari Johnson", years: "2017-2018", info: "" },
+            { id: "okc041", name: "Damien Wilkins", years: "2008-2009", info: "Original Roster" },
+            { id: "okc042", name: "Dario Šarić", years: "2023", info: "" },
+            { id: "okc043", name: "Darius Bazley", years: "2019-2023", info: "" },
+            { id: "okc044", name: "Davis Bertāns", years: "2023-2024", info: "" },
+            { id: "okc045", name: "Deonte Burton", years: "2018-2020", info: "" },
+            { id: "okc047", name: "Derrick Favors", years: "2021-2022", info: "" },
+            { id: "okc048", name: "Desmond Mason", years: "2008-2009", info: "" },
+            { id: "okc049", name: "Domantas Sabonis", years: "2016-2017", info: "Rookie Year" },
+            { id: "okc050", name: "Earl Watson", years: "2008-2009", info: "" },
+            { id: "okc051", name: "Eric Maynor", years: "2009-2013", info: "" },
+            { id: "okc052", name: "Etan Thomas", years: "2009-2010", info: "" },
+            { id: "okc053", name: "Eugene Omoruyi", years: "2022-2023", info: "" },
+            { id: "okc054", name: "Gabriel Deck", years: "2021-2022", info: "" },
+            { id: "okc055", name: "George Hill", years: "2020-2021", info: "" },
+            { id: "okc056", name: "Gordon Hayward", years: "2024", info: "" },
+            { id: "okc057", name: "Grant Jerrett", years: "2014-2015", info: "" },
+            { id: "okc058", name: "Hamidou Diallo", years: "2018-2021", info: "Dunk Champ" },
+            { id: "okc059", name: "Hasheem Thabeet", years: "2012-2014", info: "" },
+            { id: "okc060", name: "Ish Smith", years: "2014-2015", info: "" },
+            { id: "okc061", name: "Isaiah Roby", years: "2019-2022", info: "" },
+            { id: "okc062", name: "Jack White", years: "2023", info: "" },
+            { id: "okc063", name: "Jared Butler", years: "2022-2024", info: "" },
+            { id: "okc064", name: "Jaylen Hoard", years: "2021-2022", info: "" },
+            { id: "okc065", name: "Jeremy Lamb", years: "2012-2015", info: "" },
+            { id: "okc066", name: "Jeremiah Robinson-Earl", years: "2021-2023", info: "" },
+            { id: "okc067", name: "Joffrey Lauvergne", years: "2016-2017", info: "" },
+            { id: "okc068", name: "Johan Petro", years: "2008-2009", info: "" },
+            { id: "okc069", name: "Joe Smith", years: "2008-2009", info: "" },
+            { id: "okc070", name: "Josh Hall", years: "2020-2021", info: "" },
+            { id: "okc071", name: "Josh Huestis", years: "2015-2018", info: "" },
+            { id: "okc072", name: "Justin Jackson", years: "2020-2021", info: "" },
+            { id: "okc073", name: "Justin Patton", years: "2019-2020", info: "" },
+            { id: "okc074", name: "Kevin Hervey", years: "2019-2020", info: "" },
+            { id: "okc075", name: "Kevin Ollie", years: "2009-2010", info: "" },
+            { id: "okc076", name: "Keyontae Johnson", years: "2023-2024", info: "" },
+            { id: "okc077", name: "Kyle Singler", years: "2015-2018", info: "" },
+            { id: "okc078", name: "Kyle Weaver", years: "2008-2010", info: "" },
+            { id: "okc079", name: "Lazar Hayward", years: "2011-2012", info: "" },
+            { id: "okc080", name: "Lindy Waters III", years: "2021-2024", info: "Local Hero" },
+            { id: "okc081", name: "Malik Rose", years: "2009", info: "" },
+            { id: "okc082", name: "Mamadi Diakite", years: "2021-2022", info: "" },
+            { id: "okc083", name: "Markieff Morris", years: "2019", info: "" },
+            { id: "okc084", name: "Mike Wilks", years: "2009-2010", info: "" },
+            { id: "okc085", name: "Mitch McGary", years: "2014-2016", info: "" },
+            { id: "okc086", name: "Moses Brown", years: "2021", info: "" },
+            { id: "okc087", name: "Nate Robinson", years: "2011", info: "" },
+            { id: "okc088", name: "Nazr Mohammed", years: "2011-2012, 2016", info: "" },
+            { id: "okc089", name: "Nerlens Noel", years: "2018-2020", info: "" },
+            { id: "okc090", name: "Norris Cole", years: "2017", info: "" },
+            { id: "okc091", name: "Olivier Sarr", years: "2021-2024", info: "" },
+            { id: "okc092", name: "Patrick Patterson", years: "2017-2019", info: "" },
+            { id: "okc093", name: "Perry Jones III", years: "2012-2015", info: "" },
+            { id: "okc094", name: "PJ Dozier", years: "2017-2018", info: "" },
+            { id: "okc095", name: "Randy Foye", years: "2016", info: "" },
+            { id: "okc096", name: "Rashawn Thomas", years: "2017-2018", info: "" },
+            { id: "okc097", name: "Raymond Felton", years: "2017-2019", info: "" },
+            { id: "okc098", name: "Robert Swift", years: "2008-2009", info: "" },
+            { id: "okc099", name: "Ronnie Brewer", years: "2013", info: "" },
+            { id: "okc100", name: "Royal Ivey", years: "2010-2012", info: "" },
+            { id: "okc118", name: "Ryan Gomes", years: "2013-2014", info: "" },
+            { id: "okc119", name: "Sebastian Telfair", years: "2014-2015", info: "" },
+            { id: "okc120", name: "Semaj Christon", years: "2016-2017", info: "" },
+            { id: "okc121", name: "Shaun Livingston", years: "2009", info: "" },
+            { id: "okc122", name: "Steve Novak", years: "2015-2016", info: "" },
+            { id: "okc123", name: "Svi Mykhailiuk", years: "2021", info: "" },
+            { id: "okc124", name: "Taj Gibson", years: "2017", info: "" },
+            { id: "okc125", name: "Terrance Ferguson", years: "2017-2020", info: "" },
+            { id: "okc126", name: "Theo Maledon", years: "2020-2022", info: "" },
+            { id: "okc127", name: "Timothé Luwawu-Cabarrot", years: "2018-2019", info: "" },
+            { id: "okc128", name: "Tony Bradley", years: "2021", info: "" },
+            { id: "okc129", name: "Tre Mann", years: "2021-2024", info: "" },
+            { id: "okc130", name: "Trevor Ariza", years: "2020-2021", info: "" },
+            { id: "okc131", name: "Ty Jerome", years: "2020-2022", info: "" },
+            { id: "okc132", name: "Tyson Chandler", years: "2009", info: "Trade Voided" },
+            { id: "okc133", name: "Vasilije Micić", years: "2023-2024", info: "" },
+            { id: "okc134", name: "Victor Oladipo", years: "2016-2017, 2023", info: "" },
+            { id: "okc135", name: "Vít Krejčí", years: "2021-2022", info: "" },
+            { id: "okc136", name: "Zavier Simpson", years: "2022", info: "Hook PG" }
+        ];
 
-  // --- THE STARTERS & KEY ROTATION ---
-  { id: "okc010", name: "Thabo Sefolosha", years: "2009-2014", info: "Defensive Anchor" },
-  { id: "okc011", name: "Kendrick Perkins", years: "2011-2015", info: "The Enforcer" },
-  { id: "okc012", name: "Reggie Jackson", years: "2011-2015", info: "Spark Plug" },
-  { id: "okc013", name: "Andre Roberson", years: "2013-2020", info: "All-Defensive" },
-  { id: "okc014", name: "Dennis Schröder", years: "2018-2020", info: "6th Man Finalist" },
-  { id: "okc015", name: "Jerami Grant", years: "2016-2019", info: "Two-Way Wing" },
-  { id: "okc016", name: "Enes Kanter", years: "2015-2017", info: "Stache Brother" },
-  { id: "okc017", name: "Jeff Green", years: "2008-2011", info: "Original Core" },
-  { id: "okc018", name: "Dion Waiters", years: "2015-2016", info: "Waiters Island" },
-  { id: "okc019", name: "Nenad Krstić", years: "2008-2011", info: "Early Era Center" },
-  { id: "okc020", name: "Derek Fisher", years: "2012-2014", info: "Veteran Leader" },
-  { id: "okc021", name: "Danilo Gallinari", years: "2019-2020", info: "Sharpshooter" },
-  { id: "okc022", name: "Al Horford", years: "2020-2021", info: "" },
-  { id: "okc023", name: "Josh Giddey", years: "2021-2024", info: "Triple-Double Guard" },
-  { id: "okc024", name: "Mike Muscala", years: "2019-2024", info: "The Moose" },
-  { id: "okc025", name: "Aleksej Pokuševski", years: "2020-2024", info: "Poku" },
+        // Custom Icon components since we are in a standalone script
+        const Icon = ({ name, className }) => {
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            }, [name]);
+            return <i data-lucide={name} className={className}></i>;
+        };
 
-  // --- DEPTH & JOURNEYMEN (A-Z) ---
-  { id: "okc026", name: "Abdel Nader", years: "2018-2020", info: "" },
-  { id: "okc027", name: "Admiral Schofield", years: "2020-2021", info: "" },
-  { id: "okc028", name: "Alex Abrines", years: "2016-2019", info: "The Wolverine" },
-  { id: "okc029", name: "Anthony Morrow", years: "2014-2017", info: "Elite Shooter" },
-  { id: "okc030", name: "Bismack Biyombo", years: "2024", info: "" },
-  { id: "okc031", name: "Byron Mullens", years: "2009-2011", info: "" },
-  { id: "okc032", name: "Cameron Payne", years: "2015-2017", info: "Dance Partner" },
-  { id: "okc033", name: "Caron Butler", years: "2014", info: "" },
-  { id: "okc034", name: "Charlie Brown Jr.", years: "2021", info: "" },
-  { id: "okc035", name: "Chucky Atkins", years: "2008-2009", info: "" },
-  { id: "okc036", name: "Cole Aldrich", years: "2010-2012", info: "" },
-  { id: "okc037", name: "Corey Brewer", years: "2018", info: "" },
-  { id: "okc038", name: "D.J. Augustin", years: "2015-2016", info: "" },
-  { id: "okc039", name: "Daequan Cook", years: "2010-2012", info: "" },
-  { id: "okc040", name: "Dakari Johnson", years: "2017-2018", info: "" },
-  { id: "okc041", name: "Damien Wilkins", years: "2008-2009", info: "Original Roster" },
-  { id: "okc042", name: "Dario Šarić", years: "2023", info: "" },
-  { id: "okc043", name: "Darius Bazley", years: "2019-2023", info: "" },
-  { id: "okc044", name: "Davis Bertāns", years: "2023-2024", info: "" },
-  { id: "okc045", name: "Deonte Burton", years: "2018-2020", info: "" },
-  { id: "okc046", name: "Derek Fisher", years: "2012-2014", info: "" },
-  { id: "okc047", name: "Derrick Favors", years: "2021-2022", info: "" },
-  { id: "okc048", name: "Desmond Mason", years: "2008-2009", info: "" },
-  { id: "okc049", name: "Domantas Sabonis", years: "2016-2017", info: "Rookie Year" },
-  { id: "okc050", name: "Earl Watson", years: "2008-2009", info: "" },
-  { id: "okc051", name: "Eric Maynor", years: "2009-2013", info: "" },
-  { id: "okc052", name: "Etan Thomas", years: "2009-2010", info: "" },
-  { id: "okc053", name: "Eugene Omoruyi", years: "2022-2023", info: "" },
-  { id: "okc054", name: "Gabriel Deck", years: "2021-2022", info: "" },
-  { id: "okc055", name: "George Hill", years: "2020-2021", info: "" },
-  { id: "okc056", name: "Gordon Hayward", years: "2024", info: "" },
-  { id: "okc057", name: "Grant Jerrett", years: "2014-2015", info: "" },
-  { id: "okc058", name: "Hamidou Diallo", years: "2018-2021", info: "Dunk Champ" },
-  { id: "okc059", name: "Hasheem Thabeet", years: "2012-2014", info: "" },
-  { id: "okc060", name: "Ish Smith", years: "2014-2015", info: "" },
-  { id: "okc061", name: "Isaiah Roby", years: "2019-2022", info: "" },
-  { id: "okc062", name: "Jack White", years: "2023", info: "" },
-  { id: "okc063", name: "Jared Butler", years: "2022-2024", info: "" },
-  { id: "okc064", name: "Jaylen Hoard", years: "2021-2022", info: "" },
-  { id: "okc065", name: "Jeremy Lamb", years: "2012-2015", info: "" },
-  { id: "okc066", name: "Jeremiah Robinson-Earl", years: "2021-2023", info: "" },
-  { id: "okc067", name: "Joffrey Lauvergne", years: "2016-2017", info: "" },
-  { id: "okc068", name: "Johan Petro", years: "2008-2009", info: "" },
-  { id: "okc069", name: "Joe Smith", years: "2008-2009", info: "" },
-  { id: "okc070", name: "Josh Hall", years: "2020-2021", info: "" },
-  { id: "okc071", name: "Josh Huestis", years: "2015-2018", info: "" },
-  { id: "okc072", name: "Justin Jackson", years: "2020-2021", info: "" },
-  { id: "okc073", name: "Justin Patton", years: "2019-2020", info: "" },
-  { id: "okc074", name: "Kevin Hervey", years: "2019-2020", info: "" },
-  { id: "okc075", name: "Kevin Ollie", years: "2009-2010", info: "" },
-  { id: "okc076", name: "Keyontae Johnson", years: "2023-2024", info: "" },
-  { id: "okc077", name: "Kyle Singler", years: "2015-2018", info: "" },
-  { id: "okc078", name: "Kyle Weaver", years: "2008-2010", info: "" },
-  { id: "okc079", name: "Lazar Hayward", years: "2011-2012", info: "" },
-  { id: "okc080", name: "Lindy Waters III", years: "2021-2024", info: "Local Hero" },
-  { id: "okc081", name: "Malik Rose", years: "2009", info: "" },
-  { id: "okc082", name: "Mamadi Diakite", years: "2021-2022", info: "" },
-  { id: "okc083", name: "Markieff Morris", years: "2019", info: "" },
-  { id: "okc084", name: "Mike Wilks", years: "2009-2010", info: "" },
-  { id: "okc085", name: "Mitch McGary", years: "2014-2016", info: "" },
-  { id: "okc086", name: "Moses Brown", years: "2021", info: "" },
-  { id: "okc087", name: "Nate Robinson", years: "2011", info: "" },
-  { id: "okc088", name: "Nazr Mohammed", years: "2011-2012, 2016", info: "" },
-  { id: "okc089", name: "Nerlens Noel", years: "2018-2020", info: "" },
-  { id: "okc090", name: "Norris Cole", years: "2017", info: "" },
-  { id: "okc091", name: "Olivier Sarr", years: "2021-2024", info: "" },
-  { id: "okc092", name: "Patrick Patterson", years: "2017-2019", info: "" },
-  { id: "okc093", name: "Perry Jones III", years: "2012-2015", info: "" },
-  { id: "okc094", name: "PJ Dozier", years: "2017-2018", info: "" },
-  { id: "okc095", name: "Randy Foye", years: "2016", info: "" },
-  { id: "okc096", name: "Rashawn Thomas", years: "2017-2018", info: "" },
-  { id: "okc097", name: "Raymond Felton", years: "2017-2019", info: "" },
-  { id: "okc098", name: "Robert Swift", years: "2008-2009", info: "" },
-  { id: "okc099", name: "Ronnie Brewer", years: "2013", info: "" },
-  { id: "okc100", name: "Royal Ivey", years: "2010-2012", info: "" },
-  { id: "okc118", name: "Ryan Gomes", years: "2013-2014", info: "" },
-  { id: "okc119", name: "Sebastian Telfair", years: "2014-2015", info: "" },
-  { id: "okc120", name: "Semaj Christon", years: "2016-2017", info: "" },
-  { id: "okc121", name: "Shaun Livingston", years: "2009", info: "" },
-  { id: "okc122", name: "Steve Novak", years: "2015-2016", info: "" },
-  { id: "okc123", name: "Svi Mykhailiuk", years: "2021", info: "" },
-  { id: "okc124", name: "Taj Gibson", years: "2017", info: "" },
-  { id: "okc125", name: "Terrance Ferguson", years: "2017-2020", info: "" },
-  { id: "okc126", name: "Theo Maledon", years: "2020-2022", info: "" },
-  { id: "okc127", name: "Timothé Luwawu-Cabarrot", years: "2018-2019", info: "" },
-  { id: "okc128", name: "Tony Bradley", years: "2021", info: "" },
-  { id: "okc129", name: "Tre Mann", years: "2021-2024", info: "" },
-  { id: "okc130", name: "Trevor Ariza", years: "2020-2021", info: "" },
-  { id: "okc131", name: "Ty Jerome", years: "2020-2022", info: "" },
-  { id: "okc132", name: "Tyson Chandler", years: "2009", info: "Trade Voided" },
-  { id: "okc133", name: "Vasilije Micić", years: "2023-2024", info: "" },
-  { id: "okc134", name: "Victor Oladipo", years: "2016-2017, 2023", info: "" },
-  { id: "okc135", name: "Vít Krejčí", years: "2021-2022", info: "" },
-  { id: "okc136", name: "Zavier Simpson", years: "2022", info: "Hook PG" }
-];
-
-const COLORS = {
-  blue: "#007AC1",
-  orange: "#EF3B24",
-  yellow: "#FDBB30",
-  navy: "#002D62",
-  gray: "#F8FAFC"
-};
-
-export default function App() {
-  const [collectedIds, setCollectedIds] = useState([]);
-  const [customPlayers, setCustomPlayers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("all"); 
-  const [isReady, setIsReady] = useState(false);
-  
-  const [toast, setToast] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showDataModal, setShowDataModal] = useState(false);
-
-  useEffect(() => {
-    try {
-      const savedCollected = localStorage.getItem('thunder-ultimate-v1-collected');
-      const savedCustom = localStorage.getItem('thunder-ultimate-v1-custom');
-      if (savedCollected) setCollectedIds(JSON.parse(savedCollected));
-      if (savedCustom) setCustomPlayers(JSON.parse(savedCustom));
-    } catch (err) {
-      console.error("Storage load failed", err);
-    }
-    setIsReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (isReady) {
-      localStorage.setItem('thunder-ultimate-v1-collected', JSON.stringify(collectedIds));
-      localStorage.setItem('thunder-ultimate-v1-custom', JSON.stringify(customPlayers));
-    }
-  }, [collectedIds, customPlayers, isReady]);
-
-  const showToastMsg = (msg, type = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3000);
-  };
-
-  const togglePlayer = (id) => {
-    setCollectedIds(prev => 
-      prev.includes(id) ? prev.filter(pId => pId !== id) : [...prev, id]
-    );
-  };
-
-  const removeCustomPlayer = (id) => {
-    setCustomPlayers(prev => prev.filter(p => p.id !== id));
-    setCollectedIds(prev => prev.filter(pId => pId !== id));
-    showToastMsg("Player removed.");
-  };
-
-  const handleAddCustomPlayer = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const name = formData.get('name').trim();
-    if (!name) return;
-
-    const newPlayer = {
-      id: `custom-${Date.now()}`,
-      name,
-      years: formData.get('years') || "OKC Era",
-      info: formData.get('info') || "User Drafted",
-      isCustom: true
-    };
-    
-    setCustomPlayers(prev => [...prev, newPlayer]);
-    setShowAddModal(false);
-    showToastMsg(`${newPlayer.name} added to the archive!`);
-    e.target.reset();
-  };
-
-  const handleExport = () => {
-    const data = { collectedIds, customPlayers };
-    const str = btoa(JSON.stringify(data));
-    const textArea = document.createElement("textarea");
-    textArea.value = str;
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-      document.execCommand('copy');
-      showToastMsg("Export code copied!");
-    } catch (err) {
-      showToastMsg("Manual copy failed.", "error");
-    }
-    document.body.removeChild(textArea);
-  };
-
-  const handleImport = (e) => {
-    e.preventDefault();
-    const str = new FormData(e.target).get('importString');
-    try {
-      const decoded = JSON.parse(atob(str));
-      if (decoded.collectedIds) setCollectedIds(decoded.collectedIds);
-      if (decoded.customPlayers) setCustomPlayers(decoded.customPlayers);
-      showToastMsg("Collection restored!");
-      setShowDataModal(false);
-    } catch (err) {
-      showToastMsg("Invalid backup string.", "error");
-    }
-  };
-
-  const allPlayers = useMemo(() => {
-    return [...DEFAULT_PLAYERS, ...customPlayers].sort((a, b) => a.name.localeCompare(b.name));
-  }, [customPlayers]);
-
-  const filteredPlayers = useMemo(() => {
-    return allPlayers.filter(p => {
-      const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-      if (!matchesSearch) return false;
-      if (filter === 'collected') return collectedIds.includes(p.id);
-      if (filter === 'needed') return !collectedIds.includes(p.id);
-      return true;
-    });
-  }, [allPlayers, searchTerm, filter, collectedIds]);
-
-  const progressPct = allPlayers.length > 0 
-    ? Math.round((collectedIds.length / allPlayers.length) * 100) 
-    : 0;
-
-  if (!isReady) return <div className="min-h-screen bg-[#002D62] flex items-center justify-center text-white font-black italic">LOADING ARCHIVE...</div>;
-
-  return (
-    <div className="min-h-screen bg-[#F1F5F9] font-sans text-slate-900 pb-24 selection:bg-[#007AC1]/20">
-      
-      {/* Toast Alert */}
-      {toast && (
-        <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-8 py-4 rounded-full shadow-2xl text-white font-black tracking-wide transition-all border-4 border-white/20 scale-110 ${toast.type === 'error' ? 'bg-red-600' : 'bg-[#EF3B24]'}`}>
-          {toast.msg}
-        </div>
-      )}
-
-      {/* Header Section */}
-      <header className="bg-[#007AC1] text-white pt-10 pb-28 px-6 shadow-2xl sticky top-0 z-40 overflow-hidden border-b-8 border-[#FDBB30]">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#EF3B24] rounded-full blur-[140px] opacity-15 -translate-y-1/2 translate-x-1/2"></div>
-        
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="flex flex-col lg:flex-row justify-between items-center mb-10 gap-6">
-            <div className="flex items-center gap-6">
-              <div className="bg-white p-5 rounded-[2.5rem] shadow-xl group hover:rotate-12 transition-transform duration-500">
-                <Users className="w-10 h-10 text-[#007AC1]" />
-              </div>
-              <div className="text-center md:text-left">
-                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic leading-none">Thunder Archive</h1>
-                <p className="text-sky-200 text-xs font-black tracking-[0.4em] mt-3 uppercase opacity-80">Full OKC Pure History (2008—2025)</p>
-              </div>
-            </div>
+        function App() {
+            const [collectedIds, setCollectedIds] = useState([]);
+            const [customPlayers, setCustomPlayers] = useState([]);
+            const [searchTerm, setSearchTerm] = useState("");
+            const [filter, setFilter] = useState("all"); 
+            const [isReady, setIsReady] = useState(false);
             
-            <div className="flex gap-4">
-              <button onClick={() => setShowAddModal(true)} className="bg-white/10 hover:bg-white/20 border-2 border-white/20 text-white px-8 py-4 rounded-3xl text-xs font-black uppercase tracking-widest transition-all active:scale-90 flex items-center">
-                <Plus className="w-5 h-5 mr-2" /> Add Player
-              </button>
-              <button onClick={() => setShowDataModal(true)} className="bg-[#EF3B24] hover:bg-red-700 text-white px-8 py-4 rounded-3xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-90 flex items-center">
-                <Save className="w-5 h-5 mr-2" /> Sync
-              </button>
-            </div>
-          </div>
+            const [toast, setToast] = useState(null);
+            const [showAddModal, setShowAddModal] = useState(false);
+            const [showDataModal, setShowDataModal] = useState(false);
 
-          {/* Master Progress Display */}
-          <div className="bg-white/10 backdrop-blur-2xl rounded-[3rem] p-10 border border-white/10 shadow-inner">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-              <div className="text-center md:text-left">
-                <p className="text-sky-200 text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-60">Archive Roster Strength</p>
-                <div className="flex items-end gap-2">
-                  <span className="text-5xl font-black text-white leading-none">{collectedIds.length}</span>
-                  <span className="text-sky-300/40 text-2xl font-bold tracking-normal">/ {allPlayers.length}</span>
+            useEffect(() => {
+                try {
+                    const savedCollected = localStorage.getItem('thunder-ultimate-v1-collected');
+                    const savedCustom = localStorage.getItem('thunder-ultimate-v1-custom');
+                    if (savedCollected) setCollectedIds(JSON.parse(savedCollected));
+                    if (savedCustom) setCustomPlayers(JSON.parse(savedCustom));
+                } catch (err) {
+                    console.error("Storage load failed", err);
+                }
+                setIsReady(true);
+            }, []);
+
+            useEffect(() => {
+                if (isReady) {
+                    localStorage.setItem('thunder-ultimate-v1-collected', JSON.stringify(collectedIds));
+                    localStorage.setItem('thunder-ultimate-v1-custom', JSON.stringify(customPlayers));
+                }
+            }, [collectedIds, customPlayers, isReady]);
+
+            const showToastMsg = (msg, type = 'success') => {
+                setToast({ msg, type });
+                setTimeout(() => setToast(null), 3000);
+            };
+
+            const togglePlayer = (id) => {
+                setCollectedIds(prev => 
+                    prev.includes(id) ? prev.filter(pId => pId !== id) : [...prev, id]
+                );
+            };
+
+            const removeCustomPlayer = (id) => {
+                setCustomPlayers(prev => prev.filter(p => p.id !== id));
+                setCollectedIds(prev => prev.filter(pId => pId !== id));
+                showToastMsg("Player removed.");
+            };
+
+            const handleAddCustomPlayer = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const name = formData.get('name').trim();
+                if (!name) return;
+
+                const newPlayer = {
+                    id: `custom-${Date.now()}`,
+                    name,
+                    years: formData.get('years') || "OKC Era",
+                    info: formData.get('info') || "User Drafted",
+                    isCustom: true
+                };
+                
+                setCustomPlayers(prev => [...prev, newPlayer]);
+                setShowAddModal(false);
+                showToastMsg(`${newPlayer.name} added to the archive!`);
+                e.target.reset();
+            };
+
+            const handleExport = () => {
+                const data = { collectedIds, customPlayers };
+                const str = btoa(JSON.stringify(data));
+                const textArea = document.createElement("textarea");
+                textArea.value = str;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToastMsg("Export code copied!");
+                } catch (err) {
+                    showToastMsg("Manual copy failed.", "error");
+                }
+                document.body.removeChild(textArea);
+            };
+
+            const handleImport = (e) => {
+                e.preventDefault();
+                const str = new FormData(e.target).get('importString');
+                try {
+                    const decoded = JSON.parse(atob(str));
+                    if (decoded.collectedIds) setCollectedIds(decoded.collectedIds);
+                    if (decoded.customPlayers) setCustomPlayers(decoded.customPlayers);
+                    showToastMsg("Collection restored!");
+                    setShowDataModal(false);
+                } catch (err) {
+                    showToastMsg("Invalid backup string.", "error");
+                }
+            };
+
+            const allPlayers = useMemo(() => {
+                return [...DEFAULT_PLAYERS, ...customPlayers].sort((a, b) => a.name.localeCompare(b.name));
+            }, [customPlayers]);
+
+            const filteredPlayers = useMemo(() => {
+                return allPlayers.filter(p => {
+                    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+                    if (!matchesSearch) return false;
+                    if (filter === 'collected') return collectedIds.includes(p.id);
+                    if (filter === 'needed') return !collectedIds.includes(p.id);
+                    return true;
+                });
+            }, [allPlayers, searchTerm, filter, collectedIds]);
+
+            const progressPct = allPlayers.length > 0 
+                ? Math.round((collectedIds.length / allPlayers.length) * 100) 
+                : 0;
+
+            if (!isReady) return (
+                <div className="min-h-screen bg-[#002D62] flex items-center justify-center text-white font-black italic">
+                    LOADING ARCHIVE...
                 </div>
-              </div>
-              
-              <div className="flex-grow w-full md:w-auto">
-                <div className="w-full h-8 bg-black/40 rounded-full relative overflow-hidden p-2 shadow-inner border border-white/5">
-                  <div 
-                    className="bg-gradient-to-r from-[#FDBB30] to-[#EF3B24] h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_25px_rgba(253,187,48,0.4)]" 
-                    style={{ width: `${progressPct}%` }}
-                  ></div>
-                </div>
-              </div>
+            );
 
-              <div className="text-center md:text-right">
-                <span className="text-6xl font-black text-[#FDBB30] italic leading-none">{progressPct}%</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-6 -mt-14 relative z-20">
-        {/* Search & Tabs Console */}
-        <div className="bg-white rounded-[3.5rem] shadow-2xl p-4 flex flex-col xl:flex-row gap-4 mb-14 border border-slate-200 ring-8 ring-slate-100/50">
-          <div className="relative flex-grow">
-            <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-300" />
-            <input
-              type="text"
-              placeholder="Search 130+ Thunder players (KD, Russ, SGA, Adams)..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-18 pr-8 py-6 rounded-[3rem] bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#007AC1]/5 border-2 border-transparent focus:border-[#007AC1]/20 transition-all font-bold text-lg"
-            />
-          </div>
-
-          <div className="flex bg-slate-100 p-2 rounded-[2.5rem] gap-2 overflow-x-auto no-scrollbar">
-            {['all', 'collected', 'needed'].map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`flex-1 px-12 py-5 text-[11px] font-black rounded-3xl uppercase tracking-widest transition-all whitespace-nowrap ${filter === f ? 'bg-white text-[#007AC1] shadow-xl scale-100' : 'text-slate-400 hover:text-slate-700 scale-95'}`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Player Grid View */}
-        {filteredPlayers.length === 0 ? (
-          <div className="text-center py-52 bg-white rounded-[4rem] shadow-2xl border border-slate-100 flex flex-col items-center">
-            <div className="bg-slate-50 w-32 h-32 rounded-full flex items-center justify-center mb-10 border-4 border-slate-100">
-              <Search className="w-14 h-14 text-slate-200" />
-            </div>
-            <p className="text-4xl font-black italic uppercase tracking-tighter text-slate-300">Roster Mismatch</p>
-            <p className="text-slate-400 mt-4 font-black uppercase text-xs tracking-[0.3em]">No archive entries match this search</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            {filteredPlayers.map(player => {
-              const isCollected = collectedIds.includes(player.id);
-              const isIcon = player.id.startsWith("okc00");
-              
-              return (
-                <div 
-                  key={player.id}
-                  onClick={() => togglePlayer(player.id)}
-                  className={`relative p-9 rounded-[3.5rem] border-4 cursor-pointer transition-all duration-300 flex flex-col justify-between h-full group
-                    ${isCollected 
-                      ? 'border-[#007AC1] bg-white shadow-2xl scale-100' 
-                      : 'border-white bg-white hover:border-[#EF3B24]/40 shadow-xl hover:shadow-[#EF3B24]/10 hover:-translate-y-4'}`}
-                >
-                  <div className="absolute top-9 right-9 z-10">
-                    <div className={`transition-all duration-500 ${isCollected ? 'text-[#007AC1] scale-125' : 'text-slate-100 group-hover:text-[#EF3B24]/20'}`}>
-                      {isCollected ? <CheckCircle2 className="w-12 h-12 fill-[#007AC1]/5" /> : <Circle className="w-12 h-12" />}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className={`font-black text-2xl leading-[0.9] mb-3 pr-16 uppercase italic tracking-tighter ${isCollected ? 'text-[#007AC1]' : 'text-slate-900 group-hover:text-[#EF3B24]'}`}>
-                      {player.name}
-                    </h3>
-                    <p className="text-[10px] text-slate-400 font-black mb-8 tracking-[0.2em] italic uppercase">{player.years}</p>
+            return (
+                <div className="min-h-screen bg-[#F1F5F9] font-sans text-slate-900 pb-24 selection:bg-[#007AC1]/20">
                     
-                    {player.info && (
-                      <div className={`flex items-center gap-2 px-5 py-3 rounded-2xl w-fit font-black text-[9px] uppercase tracking-wider ${
-                        isIcon
-                          ? 'bg-[#FDBB30]/10 text-[#FDBB30] border border-[#FDBB30]/20' 
-                          : 'bg-slate-50 text-slate-500 border border-slate-100'
-                      }`}>
-                        {isIcon && <Star className="w-4 h-4 fill-[#FDBB30]" />}
-                        {player.info}
-                      </div>
+                    {toast && (
+                        <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[100] px-8 py-4 rounded-full shadow-2xl text-white font-black tracking-wide transition-all border-4 border-white/20 scale-110 ${toast.type === 'error' ? 'bg-red-600' : 'bg-[#EF3B24]'}`}>
+                            {toast.msg}
+                        </div>
                     )}
-                  </div>
 
-                  <div className="mt-14 flex justify-between items-center">
-                    {player.isCustom ? (
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); removeCustomPlayer(player.id); }}
-                        className="p-4 text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-3xl transition-all border border-red-100 shadow-sm"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    ) : (
-                      <div className="bg-slate-50 h-12 w-12 flex items-center justify-center rounded-2xl border border-slate-100">
-                        <Zap className={`w-6 h-6 transition-all duration-700 ${isCollected ? 'text-[#007AC1] fill-[#007AC1]' : 'text-slate-200'}`} />
-                      </div>
+                    <header className="bg-[#007AC1] text-white pt-10 pb-28 px-6 shadow-2xl sticky top-0 z-40 overflow-hidden border-b-8 border-[#FDBB30]">
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#EF3B24] rounded-full blur-[140px] opacity-15 -translate-y-1/2 translate-x-1/2"></div>
+                        <div className="max-w-7xl mx-auto relative z-10">
+                            <div className="flex flex-col lg:flex-row justify-between items-center mb-10 gap-6">
+                                <div className="flex items-center gap-6">
+                                    <div className="bg-white p-5 rounded-[2.5rem] shadow-xl group hover:rotate-12 transition-transform duration-500">
+                                        <Icon name="users" className="w-10 h-10 text-[#007AC1]" />
+                                    </div>
+                                    <div className="text-center md:text-left">
+                                        <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic leading-none">Thunder Archive</h1>
+                                        <p className="text-sky-200 text-xs font-black tracking-[0.4em] mt-3 uppercase opacity-80">Full OKC Pure History (2008—2025)</p>
+                                    </div>
+                                </div>
+                                <div className="flex gap-4">
+                                    <button onClick={() => setShowAddModal(true)} className="bg-white/10 hover:bg-white/20 border-2 border-white/20 text-white px-8 py-4 rounded-3xl text-xs font-black uppercase tracking-widest transition-all active:scale-90 flex items-center">
+                                        <Icon name="plus" className="w-5 h-5 mr-2" /> Add Player
+                                    </button>
+                                    <button onClick={() => setShowDataModal(true)} className="bg-[#EF3B24] hover:bg-red-700 text-white px-8 py-4 rounded-3xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-90 flex items-center">
+                                        <Icon name="save" className="w-5 h-5 mr-2" /> Sync
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur-2xl rounded-[3rem] p-10 border border-white/10 shadow-inner">
+                                <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                                    <div className="text-center md:text-left">
+                                        <p className="text-sky-200 text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-60">Archive Roster Strength</p>
+                                        <div className="flex items-end gap-2">
+                                            <span className="text-5xl font-black text-white leading-none">{collectedIds.length}</span>
+                                            <span className="text-sky-300/40 text-2xl font-bold tracking-normal">/ {allPlayers.length}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex-grow w-full md:w-auto">
+                                        <div className="w-full h-8 bg-black/40 rounded-full relative overflow-hidden p-2 shadow-inner border border-white/5">
+                                            <div className="bg-gradient-to-r from-[#FDBB30] to-[#EF3B24] h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_25px_rgba(253,187,48,0.4)]" style={{ width: `${progressPct}%` }}></div>
+                                        </div>
+                                    </div>
+                                    <div className="text-center md:text-right">
+                                        <span className="text-6xl font-black text-[#FDBB30] italic leading-none">{progressPct}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto px-6 -mt-14 relative z-20">
+                        <div className="bg-white rounded-[3.5rem] shadow-2xl p-4 flex flex-col xl:flex-row gap-4 mb-14 border border-slate-200 ring-8 ring-slate-100/50">
+                            <div className="relative flex-grow">
+                                <Icon name="search" className="absolute left-8 top-1/2 -translate-y-1/2 h-6 w-6 text-slate-300" />
+                                <input
+                                    type="text"
+                                    placeholder="Search 130+ Thunder players (KD, Russ, SGA, Adams)..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-18 pr-8 py-6 rounded-[3rem] bg-slate-50 focus:bg-white focus:outline-none focus:ring-4 focus:ring-[#007AC1]/5 border-2 border-transparent focus:border-[#007AC1]/20 transition-all font-bold text-lg"
+                                />
+                            </div>
+                            <div className="flex bg-slate-100 p-2 rounded-[2.5rem] gap-2 overflow-x-auto no-scrollbar">
+                                {['all', 'collected', 'needed'].map(f => (
+                                    <button
+                                        key={f}
+                                        onClick={() => setFilter(f)}
+                                        className={`flex-1 px-12 py-5 text-[11px] font-black rounded-3xl uppercase tracking-widest transition-all whitespace-nowrap ${filter === f ? 'bg-white text-[#007AC1] shadow-xl scale-100' : 'text-slate-400 hover:text-slate-700 scale-95'}`}
+                                    >
+                                        {f}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {filteredPlayers.length === 0 ? (
+                            <div className="text-center py-52 bg-white rounded-[4rem] shadow-2xl border border-slate-100 flex flex-col items-center">
+                                <div className="bg-slate-50 w-32 h-32 rounded-full flex items-center justify-center mb-10 border-4 border-slate-100">
+                                    <Icon name="search" className="w-14 h-14 text-slate-200" />
+                                </div>
+                                <p className="text-4xl font-black italic uppercase tracking-tighter text-slate-300">Roster Mismatch</p>
+                                <p className="text-slate-400 mt-4 font-black uppercase text-xs tracking-[0.3em]">No archive entries match this search</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                                {filteredPlayers.map(player => {
+                                    const isCollected = collectedIds.includes(player.id);
+                                    const isIcon = player.id.startsWith("okc00");
+                                    return (
+                                        <div 
+                                            key={player.id}
+                                            onClick={() => togglePlayer(player.id)}
+                                            className={`relative p-9 rounded-[3.5rem] border-4 cursor-pointer transition-all duration-300 flex flex-col justify-between h-full group
+                                                ${isCollected ? 'border-[#007AC1] bg-white shadow-2xl scale-100' : 'border-white bg-white hover:border-[#EF3B24]/40 shadow-xl hover:shadow-[#EF3B24]/10 hover:-translate-y-4'}`}
+                                        >
+                                            <div className="absolute top-9 right-9 z-10">
+                                                <div className={`transition-all duration-500 ${isCollected ? 'text-[#007AC1] scale-125' : 'text-slate-100 group-hover:text-[#EF3B24]/20'}`}>
+                                                    {isCollected ? <Icon name="check-circle-2" className="w-12 h-12 fill-[#007AC1]/5" /> : <Icon name="circle" className="w-12 h-12" />}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h3 className={`font-black text-2xl leading-[0.9] mb-3 pr-16 uppercase italic tracking-tighter ${isCollected ? 'text-[#007AC1]' : 'text-slate-900 group-hover:text-[#EF3B24]'}`}>
+                                                    {player.name}
+                                                </h3>
+                                                <p className="text-[10px] text-slate-400 font-black mb-8 tracking-[0.2em] italic uppercase">{player.years}</p>
+                                                {player.info && (
+                                                    <div className={`flex items-center gap-2 px-5 py-3 rounded-2xl w-fit font-black text-[9px] uppercase tracking-wider ${isIcon ? 'bg-[#FDBB30]/10 text-[#FDBB30] border border-[#FDBB30]/20' : 'bg-slate-50 text-slate-500 border border-slate-100'}`}>
+                                                        {isIcon && <Icon name="star" className="w-4 h-4 fill-[#FDBB30]" />}
+                                                        {player.info}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="mt-14 flex justify-between items-center">
+                                                {player.isCustom ? (
+                                                    <button onClick={(e) => { e.stopPropagation(); removeCustomPlayer(player.id); }} className="p-4 text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-3xl transition-all border border-red-100 shadow-sm">
+                                                        <Icon name="trash-2" className="w-5 h-5" />
+                                                    </button>
+                                                ) : (
+                                                    <div className="bg-slate-50 h-12 w-12 flex items-center justify-center rounded-2xl border border-slate-100">
+                                                        <Icon name="zap" className={`w-6 h-6 transition-all duration-700 ${isCollected ? 'text-[#007AC1] fill-[#007AC1]' : 'text-slate-200'}`} />
+                                                    </div>
+                                                )}
+                                                <div className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${isCollected ? 'text-[#007AC1] translate-x-0 opacity-100' : 'translate-x-8 opacity-0'}`}>
+                                                    COLLECTED
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </main>
+
+                    {showAddModal && (
+                        <div className="fixed inset-0 bg-[#002D62]/95 backdrop-blur-3xl flex items-center justify-center p-6 z-[100]">
+                            <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-xl overflow-hidden border border-white/20">
+                                <div className="bg-[#007AC1] px-12 py-10 flex justify-between items-center text-white relative">
+                                    <div className="absolute top-0 right-0 w-56 h-56 bg-[#EF3B24] rounded-full blur-[80px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+                                    <div>
+                                        <h2 className="text-3xl font-black uppercase italic tracking-tighter">New Archive Entry</h2>
+                                        <p className="text-sky-200 text-[11px] font-black tracking-[0.4em] mt-2 uppercase">Official Roster Update</p>
+                                    </div>
+                                    <button onClick={() => setShowAddModal(false)} className="bg-white/10 hover:bg-white/20 p-4 rounded-3xl transition-all"><Icon name="x" className="w-7 h-7"/></button>
+                                </div>
+                                <form onSubmit={handleAddCustomPlayer} className="p-12">
+                                    <div className="space-y-10">
+                                        <div>
+                                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2">Full Player Name</label>
+                                            <input required name="name" type="text" className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-7 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-bold text-xl" placeholder="e.g. Mike Muscala" />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-8">
+                                            <div>
+                                                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2">Tenure</label>
+                                                <input name="years" type="text" className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-7 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-bold" placeholder="2019—2023" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2">Legacy Info</label>
+                                                <input name="info" type="text" className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-7 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-bold" placeholder="Fan Favorite" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-14 flex gap-6">
+                                        <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 py-7 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 rounded-[3rem] transition-all">Discard</button>
+                                        <button type="submit" className="flex-[2] py-7 bg-[#EF3B24] text-white font-black uppercase tracking-widest rounded-[3rem] shadow-2xl shadow-red-500/20 hover:bg-red-700 active:scale-95 transition-all text-xs">Sign to Archive</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     )}
-                    
-                    <div className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${isCollected ? 'text-[#007AC1] translate-x-0 opacity-100' : 'translate-x-8 opacity-0'}`}>
-                      COLLECTED
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </main>
 
-      {/* --- MODAL DIALOGS --- */}
-
-      {/* Draft Legend Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 bg-[#002D62]/95 backdrop-blur-3xl flex items-center justify-center p-6 z-[100] animate-in fade-in duration-300">
-          <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-xl overflow-hidden border border-white/20">
-            <div className="bg-[#007AC1] px-12 py-10 flex justify-between items-center text-white relative">
-               <div className="absolute top-0 right-0 w-56 h-56 bg-[#EF3B24] rounded-full blur-[80px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-              <div>
-                <h2 className="text-3xl font-black uppercase italic tracking-tighter">New Archive Entry</h2>
-                <p className="text-sky-200 text-[11px] font-black tracking-[0.4em] mt-2 uppercase">Official Roster Update</p>
-              </div>
-              <button onClick={() => setShowAddModal(false)} className="bg-white/10 hover:bg-white/20 p-4 rounded-3xl transition-all"><X className="w-7 h-7"/></button>
-            </div>
-            <form onSubmit={handleAddCustomPlayer} className="p-12">
-              <div className="space-y-10">
-                <div>
-                  <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2">Full Player Name</label>
-                  <input required name="name" type="text" className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-7 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-bold text-xl" placeholder="e.g. Mike Muscala" />
+                    {showDataModal && (
+                        <div className="fixed inset-0 bg-[#002D62]/95 backdrop-blur-3xl flex items-center justify-center p-6 z-[100]">
+                            <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-2xl overflow-hidden">
+                                <div className="bg-[#EF3B24] px-12 py-10 flex justify-between items-center text-white relative">
+                                    <div>
+                                        <h2 className="text-3xl font-black uppercase italic tracking-tighter">Cloud Sync</h2>
+                                        <p className="text-white/50 text-[11px] font-black tracking-widest mt-2 uppercase">Portable History Protocol</p>
+                                    </div>
+                                    <button onClick={() => setShowDataModal(false)} className="bg-white/10 hover:bg-white/20 p-4 rounded-3xl transition-all"><Icon name="x" className="w-7 h-7"/></button>
+                                </div>
+                                <div className="p-12 space-y-14">
+                                    <div className="group">
+                                        <div className="flex items-center gap-6 mb-8">
+                                            <div className="bg-[#EF3B24]/10 p-5 rounded-[2.5rem] group-hover:scale-110 transition-transform"><Icon name="download" className="w-8 h-8 text-[#EF3B24]"/></div>
+                                            <div>
+                                                <h3 className="font-black text-2xl uppercase leading-none italic">Secure Export</h3>
+                                                <p className="text-slate-400 text-[10px] font-black mt-2 uppercase tracking-[0.3em]">GENERATE UNIQUE SAVE STRING</p>
+                                            </div>
+                                        </div>
+                                        <button onClick={handleExport} className="w-full bg-white border-4 border-[#EF3B24] text-[#EF3B24] hover:bg-[#EF3B24] hover:text-white font-black uppercase tracking-widest py-7 rounded-[3rem] transition-all shadow-2xl hover:shadow-[#EF3B24]/30 flex justify-center items-center active:scale-95">
+                                            <Icon name="copy" className="w-6 h-6 mr-4" /> Copy Thunder Registry Code
+                                        </button>
+                                    </div>
+                                    <div className="group">
+                                        <div className="flex items-center gap-6 mb-8">
+                                            <div className="bg-slate-100 p-5 rounded-[2.5rem] group-hover:scale-110 transition-transform"><Icon name="upload" className="w-8 h-8 text-slate-600"/></div>
+                                            <div>
+                                                <h3 className="font-black text-2xl uppercase leading-none italic">Registry Restoration</h3>
+                                                <p className="text-slate-400 text-[10px] font-black mt-2 uppercase tracking-[0.3em]">LOAD PREVIOUS ARCHIVE</p>
+                                            </div>
+                                        </div>
+                                        <form onSubmit={handleImport} className="space-y-6">
+                                            <input required name="importString" type="text" className="w-full border-4 border-slate-100 rounded-[3rem] p-7 bg-slate-50 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-mono text-[10px] shadow-inner" placeholder="Paste your archive string here..." />
+                                            <button type="submit" className="w-full bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest py-7 rounded-[3rem] transition-all shadow-2xl active:scale-95">
+                                                RELOAD ARCHIVE
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div className="grid grid-cols-2 gap-8">
-                  <div>
-                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2">Tenure</label>
-                    <input name="years" type="text" className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-7 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-bold" placeholder="2019—2023" />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-2">Legacy Info</label>
-                    <input name="info" type="text" className="w-full bg-slate-50 border-4 border-slate-100 rounded-[2.5rem] p-7 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-bold" placeholder="Fan Favorite" />
-                  </div>
-                </div>
-              </div>
-              <div className="mt-14 flex gap-6">
-                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 py-7 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 rounded-[3rem] transition-all">Discard</button>
-                <button type="submit" className="flex-[2] py-7 bg-[#EF3B24] text-white font-black uppercase tracking-widest rounded-[3rem] shadow-2xl shadow-red-500/20 hover:bg-red-700 active:scale-95 transition-all text-xs">Sign to Archive</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            );
+        }
 
-      {/* Sync Collection Modal */}
-      {showDataModal && (
-        <div className="fixed inset-0 bg-[#002D62]/95 backdrop-blur-3xl flex items-center justify-center p-6 z-[100] animate-in fade-in duration-300">
-          <div className="bg-white rounded-[4rem] shadow-2xl w-full max-w-2xl overflow-hidden">
-            <div className="bg-[#EF3B24] px-12 py-10 flex justify-between items-center text-white relative">
-              <div>
-                <h2 className="text-3xl font-black uppercase italic tracking-tighter">Cloud Sync</h2>
-                <p className="text-white/50 text-[11px] font-black tracking-widest mt-2 uppercase">Portable History Protocol</p>
-              </div>
-              <button onClick={() => setShowDataModal(false)} className="bg-white/10 hover:bg-white/20 p-4 rounded-3xl transition-all"><X className="w-7 h-7"/></button>
-            </div>
-            
-            <div className="p-12 space-y-14">
-              <div className="group">
-                <div className="flex items-center gap-6 mb-8">
-                  <div className="bg-[#EF3B24]/10 p-5 rounded-[2.5rem] group-hover:scale-110 transition-transform"><Download className="w-8 h-8 text-[#EF3B24]"/></div>
-                  <div>
-                    <h3 className="font-black text-2xl uppercase leading-none italic">Secure Export</h3>
-                    <p className="text-slate-400 text-[10px] font-black mt-2 uppercase tracking-[0.3em]">GENERATE UNIQUE SAVE STRING</p>
-                  </div>
-                </div>
-                <button onClick={handleExport} className="w-full bg-white border-4 border-[#EF3B24] text-[#EF3B24] hover:bg-[#EF3B24] hover:text-white font-black uppercase tracking-widest py-7 rounded-[3rem] transition-all shadow-2xl hover:shadow-[#EF3B24]/30 flex justify-center items-center active:scale-95">
-                  <Copy className="w-6 h-6 mr-4" /> Copy Thunder Registry Code
-                </button>
-              </div>
-
-              <div className="group">
-                <div className="flex items-center gap-6 mb-8">
-                  <div className="bg-slate-100 p-5 rounded-[2.5rem] group-hover:scale-110 transition-transform"><Upload className="w-8 h-8 text-slate-600"/></div>
-                  <div>
-                    <h3 className="font-black text-2xl uppercase leading-none italic">Registry Restoration</h3>
-                    <p className="text-slate-400 text-[10px] font-black mt-2 uppercase tracking-[0.3em]">LOAD PREVIOUS ARCHIVE</p>
-                  </div>
-                </div>
-                <form onSubmit={handleImport} className="space-y-6">
-                  <input required name="importString" type="text" className="w-full border-4 border-slate-100 rounded-[3rem] p-7 bg-slate-50 focus:bg-white focus:border-[#007AC1] outline-none transition-all font-mono text-[10px] shadow-inner" placeholder="Paste your archive string here..." />
-                  <button type="submit" className="w-full bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest py-7 rounded-[3rem] transition-all shadow-2xl active:scale-95">
-                    RELOAD ARCHIVE
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
